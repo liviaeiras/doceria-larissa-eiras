@@ -18,6 +18,42 @@ service cloud.firestore {
         && txt(e.get('complemento', ''), 80) && txt(e.get('referencia', ''), 120);
     }
 
+    // Itens do pedido: as regras não têm laço, então cada posição (0 a 49) é conferida.
+    function itemValido(i) {
+      return i is map && i.keys().hasOnly(['id', 'nome', 'preco', 'qtd']) && i.keys().hasAll(['id', 'nome', 'preco', 'qtd'])
+        && cheio(i.id, 64) && cheio(i.nome, 100) && num(i.preco) && i.qtd is int && i.qtd >= 1 && i.qtd <= 99;
+    }
+    function itemOk(l, n) { return l.size() <= n || itemValido(l[n]); }
+    function itensValidos(l) {
+      return l is list && l.size() >= 1 && l.size() <= 50
+        && itemOk(l, 0) && itemOk(l, 1) && itemOk(l, 2) && itemOk(l, 3) && itemOk(l, 4)
+        && itemOk(l, 5) && itemOk(l, 6) && itemOk(l, 7) && itemOk(l, 8) && itemOk(l, 9)
+        && itemOk(l, 10) && itemOk(l, 11) && itemOk(l, 12) && itemOk(l, 13) && itemOk(l, 14)
+        && itemOk(l, 15) && itemOk(l, 16) && itemOk(l, 17) && itemOk(l, 18) && itemOk(l, 19)
+        && itemOk(l, 20) && itemOk(l, 21) && itemOk(l, 22) && itemOk(l, 23) && itemOk(l, 24)
+        && itemOk(l, 25) && itemOk(l, 26) && itemOk(l, 27) && itemOk(l, 28) && itemOk(l, 29)
+        && itemOk(l, 30) && itemOk(l, 31) && itemOk(l, 32) && itemOk(l, 33) && itemOk(l, 34)
+        && itemOk(l, 35) && itemOk(l, 36) && itemOk(l, 37) && itemOk(l, 38) && itemOk(l, 39)
+        && itemOk(l, 40) && itemOk(l, 41) && itemOk(l, 42) && itemOk(l, 43) && itemOk(l, 44)
+        && itemOk(l, 45) && itemOk(l, 46) && itemOk(l, 47) && itemOk(l, 48) && itemOk(l, 49);
+    }
+
+    function produtoValido(d) {
+      return d.keys().hasOnly(['categoria', 'nome', 'preco', 'foto', 'desc', 'disponivel', 'destaque', 'ordem'])
+        && cheio(d.nome, 100) && num(d.preco) && cheio(d.categoria, 60)
+        && txt(d.get('desc', ''), 300) && txt(d.get('foto', ''), 200000)
+        && d.get('disponivel', true) is bool && d.get('destaque', false) is bool && d.get('ordem', 0) is number;
+    }
+
+    function configValida(d) {
+      return txt(d.get('nome', ''), 80) && txt(d.get('horarioTexto', ''), 80) && txt(d.get('mensagemFechado', ''), 300)
+        && txt(d.get('whatsapp', ''), 15) && txt(d.get('instagram', ''), 60) && txt(d.get('endereco', ''), 160)
+        && (d.get('taxaEntrega', null) == null || num(d.taxaEntrega)) && num(d.get('pedidoMinimo', 0))
+        && d.get('aberto', true) is bool && d.get('aceitaPix', true) is bool && d.get('aceitaCartao', true) is bool
+        && d.get('categorias', []) is list && d.get('categorias', []).size() <= 40
+        && (!('pix' in d) || (d.pix is map && txt(d.pix.get('chave', ''), 77) && txt(d.pix.get('nome', ''), 25) && txt(d.pix.get('cidade', ''), 15)));
+    }
+
     function pedidoValido(d) {
       return d.keys().hasOnly(['cliente', 'tipo', 'endereco', 'itens', 'subtotal', 'taxa', 'total', 'pagamento', 'obs', 'numero', 'status', 'pago', 'criadoEm'])
         && d.keys().hasAll(['cliente', 'tipo', 'endereco', 'itens', 'subtotal', 'taxa', 'total', 'pagamento', 'obs', 'numero', 'status', 'pago', 'criadoEm'])
@@ -25,7 +61,7 @@ service cloud.firestore {
         && d.cliente.keys().hasOnly(['nome', 'telefone']) && d.cliente.keys().hasAll(['nome', 'telefone'])
         && cheio(d.cliente.nome, 80) && d.cliente.telefone is string && d.cliente.telefone.matches('[0-9]{10,11}')
         && ((d.tipo == 'retirada' && d.endereco == null) || (d.tipo == 'entrega' && enderecoValido(d.endereco)))
-        && d.itens is list && d.itens.size() >= 1 && d.itens.size() <= 50
+        && itensValidos(d.itens)
         && num(d.subtotal) && num(d.total) && (d.taxa == null || num(d.taxa))
         && d.pagamento in ['pix', 'cartao_link', 'whatsapp']
         && txt(d.obs, 500)
@@ -37,12 +73,13 @@ service cloud.firestore {
 
     match /loja/config {
       allow read: if true;
-      allow write: if isAdmin();
+      allow write: if isAdmin() && configValida(request.resource.data);
     }
 
     match /produtos/{id} {
       allow read: if true;
-      allow write: if isAdmin();
+      allow create, update: if isAdmin() && produtoValido(request.resource.data);
+      allow delete: if isAdmin();
     }
 
     match /pedidos/{id} {

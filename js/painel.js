@@ -30,8 +30,8 @@ function aoEntrar(u, admin) {
   tela("app");
   vistos = null;
   desligar = [
-    store.onConfig(c => { cfg = c; renderLoja(); renderCardapio(); renderCats(); preencherConfig(); }),
-    store.onProdutos(l => { produtos = l; renderCardapio(); if (cfg) renderCats(); }),
+    store.onConfig(c => { cfg = c; renderLoja(); renderCardapio(); renderCats(); preencherConfig(); renderPedidos(); }),
+    store.onProdutos(l => { produtos = l; renderCardapio(); if (cfg) { renderCats(); renderPedidos(); } }),
     store.onPedidos(l => { novosPedidos(l); pedidos = l; renderPedidos(); })
   ];
 }
@@ -133,6 +133,17 @@ function msgLink(p) {
   return `Olá, ${nome}! Aqui é da Larissa Eiras Doceria. Segue o link de pagamento com cartão do seu pedido #${p.numero}, no valor de ${brl(p.total)}${p.taxa === null ? " (a entrega é combinada à parte)" : ""}:
 `;
 }
+// Recalcula com os preços atuais do cardápio: o total vem do navegador do cliente e pode ter sido alterado.
+function totalConfere(p) {
+  let sub = 0;
+  for (const i of p.itens || []) {
+    const atual = produtos.find(x => x.id === i.id);
+    if (!atual) return false;
+    sub += Number(i.qtd) * Number(atual.preco);
+  }
+  const taxa = p.tipo === "entrega" && typeof cfg?.taxaEntrega === "number" ? cfg.taxaEntrega : 0;
+  return Math.abs(sub - Number(p.subtotal)) <= 0.01 && Math.abs(sub + taxa - Number(p.total)) <= 0.01;
+}
 function cartaoPedido(p) {
   const tel = soDigitos(p.cliente?.telefone), e = p.endereco, prox = proximo(p);
   const quando = new Date(p.criadoEm).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
@@ -145,6 +156,7 @@ function cartaoPedido(p) {
     <p>${p.tipo === "entrega" ? `<b>Entrega:</b> ${esc(end)}${e.complemento ? ` (${esc(e.complemento)})` : ""}${e.referencia ? `<br>Ref.: ${esc(e.referencia)}` : ""}<br><a href="${esc(mapa)}" target="_blank" rel="noopener">Abrir no Google Maps</a>` : "<b>Retirada</b> na doceria"}</p>
     <ul>${(p.itens || []).map(i => `<li>${esc(i.qtd)}× ${esc(i.nome)} <span class="muted">(${brl(i.qtd * i.preco)})</span></li>`).join("")}</ul>
     ${p.obs ? `<p class="note-box" style="background:var(--blush);border-radius:12px;padding:8px 10px"><b>Obs.:</b> ${esc(p.obs)}</p>` : ""}
+    ${produtos.length && !totalConfere(p) ? `<p class="alerta" role="note"><b>Total diferente do cardápio.</b> Confira os preços antes de confirmar.</p>` : ""}
     <p>Subtotal ${brl(p.subtotal)}${p.tipo === "entrega" ? ` · Entrega ${p.taxa === null ? "a combinar" : brl(p.taxa)}` : ""}<br><b>Total ${brl(p.total)}${p.taxa === null ? " + entrega" : ""}</b> · ${esc(PAG[p.pagamento] || p.pagamento)}</p>
     <div class="acts">
       <label class="switch"><input type="checkbox" data-pago${p.pago ? " checked" : ""}><span class="track"></span>Pago</label>

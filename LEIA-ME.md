@@ -72,6 +72,17 @@ Dica: deixe o painel aberto no celular ou computador e toque uma vez na página 
 4. Depois que o DNS propagar (pode levar algumas horas), marque **Enforce HTTPS** em **Settings → Pages**.
 5. Não esqueça de adicionar o domínio no Firebase (passo 5.4).
 
+## 6b. Proteção contra robôs (App Check com reCAPTCHA v3)
+
+Faça depois que o site estiver no endereço definitivo (passos 5 e 6).
+
+1. Em <https://www.google.com/recaptcha/admin/create>, crie um site do tipo **reCAPTCHA v3** com os domínios `liviaeiras.github.io`, `larissaeiras.com.br` e `www.larissaeiras.com.br`. Copie a **chave do site** e a **chave secreta**.
+2. No Firebase: **App Check → Apps → app Web → reCAPTCHA** e cole a **chave secreta** → Salvar.
+3. Em `js/config.js`, cole a **chave do site** em `APP_CHECK_SITE_KEY` e publique (commit).
+4. Abra a loja e o painel, faça um pedido de teste e veja em **App Check → APIs → Cloud Firestore** se as requisições aparecem como verificadas. Só então clique em **Aplicar (Enforce)** no Firestore. Se aplicar antes, o site para de funcionar.
+
+Com `APP_CHECK_SITE_KEY` vazia, o App Check fica desligado.
+
 ## 7. Testar no modo demonstração
 
 Com `FIREBASE_CONFIG = null`, tudo fica salvo só no navegador de quem está testando (aparece uma faixa dourada "Modo demonstração").

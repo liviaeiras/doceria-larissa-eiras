@@ -1,5 +1,5 @@
 // Camada de dados: Firebase (produção) ou modo demonstração (navegador).
-import { FIREBASE_CONFIG, LOJA_PADRAO, PRODUTOS_INICIAIS } from "./config.js";
+import { FIREBASE_CONFIG, APP_CHECK_SITE_KEY, LOJA_PADRAO, PRODUTOS_INICIAIS } from "./config.js";
 
 const novoNumero = () => Date.now().toString(36).slice(-5).toUpperCase();
 const comPadrao = c => ({ ...LOJA_PADRAO, ...(c || {}), pix: { ...LOJA_PADRAO.pix, ...((c && c.pix) || {}) } });
@@ -18,7 +18,12 @@ async function firebaseStore(cfg) {
   const [{ initializeApp }, F, A] = await Promise.all([
     import(base + "firebase-app.js"), import(base + "firebase-firestore.js"), import(base + "firebase-auth.js")
   ]);
-  const app = initializeApp(cfg), db = F.getFirestore(app), auth = A.getAuth(app);
+  const app = initializeApp(cfg);
+  if (APP_CHECK_SITE_KEY) {
+    const C = await import(base + "firebase-app-check.js");
+    C.initializeAppCheck(app, { provider: new C.ReCaptchaV3Provider(APP_CHECK_SITE_KEY), isTokenAutoRefreshEnabled: true });
+  }
+  const db = F.getFirestore(app), auth = A.getAuth(app);
   const cfgRef = F.doc(db, "loja", "config"), prodCol = F.collection(db, "produtos"), pedCol = F.collection(db, "pedidos");
   const ms = t => (t && t.toMillis ? t.toMillis() : (t || Date.now()));
 

@@ -5,6 +5,10 @@
 //     (os dados ficam só no navegador de quem está testando).
 // ============================================================
 export const FIREBASE_CONFIG = null;
+
+// Firebase App Check (reCAPTCHA v3): chave do site gerada no console do reCAPTCHA (veja LEIA-ME.md).
+// Vazia = App Check desligado.
+export const APP_CHECK_SITE_KEY = "";
 /* Exemplo:
 export const FIREBASE_CONFIG = {
   apiKey: "AIza...",
