@@ -1,0 +1,218 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Painel · Larissa Eiras Doceria</title>
+<meta name="theme-color" content="#8f4459">
+<link rel="icon" type="image/png" href="img/favicon-32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bodoni+Moda:opsz,wght@6..96,400;6..96,500&family=Figtree:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="css/base.css">
+<style>
+body{padding-bottom:env(safe-area-inset-bottom,0px)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+.login{max-width:400px;margin:0 auto;padding:56px 16px;display:flex;flex-direction:column;gap:16px}
+.login h1{font-size:2.2rem}
+.login img{width:72px;height:72px;border-radius:50%;background:#fff}
+.top{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
+.top .wrap{display:flex;flex-wrap:wrap;align-items:center;gap:10px 16px;padding-block:10px}
+.top h1{font-size:1.25rem;margin-right:auto}
+.loja-btn{font:inherit;font-weight:700;font-size:1rem;border:0;border-radius:999px;padding:.75em 1.4em;cursor:pointer;display:inline-flex;align-items:center;gap:10px;min-height:48px}
+.loja-btn.on{background:var(--ok);color:var(--surface)}
+.loja-btn.off{background:var(--bad);color:var(--surface)}
+.loja-btn .dot{width:12px;height:12px;border-radius:50%;background:currentColor}
+.confirm-bar{background:var(--blush);border-bottom:1px solid var(--line)}
+.confirm-bar .wrap{display:flex;flex-wrap:wrap;align-items:center;gap:10px;padding-block:12px}
+.confirm-bar p{margin:0 auto 0 0;font-weight:600}
+.tabs{display:flex;gap:6px;overflow-x:auto;padding-block:10px 0;scrollbar-width:none}
+.tabs button{font:inherit;font-weight:600;border:1px solid var(--line);background:var(--surface);color:var(--ink-soft);border-radius:999px;padding:.5em 1.1em;cursor:pointer;flex:none;min-height:40px}
+.tabs button[aria-selected="true"]{background:var(--rose);border-color:var(--rose);color:var(--rose-ink)}
+.tabs .n{display:inline-grid;place-items:center;min-width:20px;height:20px;border-radius:999px;background:var(--bad);color:var(--surface);font-size:.72rem;padding:0 5px;margin-left:4px}
+main{padding-block:18px 48px}
+.panel{display:flex;flex-direction:column;gap:16px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips button{font:inherit;font-size:.88rem;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:.4em 1em;cursor:pointer;min-height:36px}
+.chips button[aria-pressed="true"]{border-color:var(--rose);background:var(--blush);font-weight:700}
+.orders{display:grid;grid-template-columns:repeat(auto-fill,minmax(min(100%,340px),1fr));gap:14px}
+.order{background:var(--surface);border:1.5px solid var(--line);border-radius:18px;padding:16px;display:flex;flex-direction:column;gap:10px;min-width:0}
+.order.st-novo{border-color:var(--rose);box-shadow:0 0 0 3px color-mix(in srgb,var(--rose) 18%,transparent)}
+.order.fresh{animation:pulse 1.2s ease 3}
+@keyframes pulse{50%{box-shadow:0 0 0 8px color-mix(in srgb,var(--rose) 30%,transparent)}}
+.order h3{font-family:var(--f-body);font-weight:700;font-size:1.1rem;display:flex;justify-content:space-between;gap:8px;align-items:baseline}
+.order h3 small{font-weight:500;color:var(--ink-soft);font-size:.82rem}
+.order p{margin:0;font-size:.92rem}
+.order ul{margin:0;padding-left:1.1em;font-size:.92rem}
+.st{display:inline-block;font-size:.72rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;border-radius:999px;padding:.2em .7em;background:var(--blush);color:var(--ink)}
+.st.novo{background:var(--rose);color:var(--rose-ink)}
+.st.pago{background:var(--ok);color:var(--surface)}
+.acts{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.cat-block{display:flex;flex-direction:column;gap:8px}
+.cat-block h3{font-size:1.4rem}
+.prod{display:grid;grid-template-columns:48px 1fr auto;gap:10px 12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:10px 12px}
+.prod img,.prod .mono{width:48px;height:48px;border-radius:50%;object-fit:cover;background:var(--blush);display:grid;place-items:center;font-family:var(--f-display);font-style:italic;color:var(--rose)}
+.prod b{font-size:.95rem;font-weight:600;display:block;line-height:1.3}
+.prod .ctrl{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+.prod .preco{width:110px}
+.prod.off b{color:var(--ink-soft)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px;display:flex;flex-direction:column;gap:14px}
+.card h2{font-size:1.5rem}
+.cat-row{display:flex;gap:8px;align-items:center}
+.cat-row .input{flex:1;min-width:0}
+.icon-btn{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;font-size:1rem;flex:none}
+.icon-btn:disabled{opacity:.4;cursor:not-allowed}
+.pix-prev{font-family:ui-monospace,Menlo,monospace;font-size:.72rem;word-break:break-all;background:var(--blush);padding:10px;border-radius:10px;margin:0}
+.foto-prev{width:96px;height:96px;border-radius:50%;object-fit:cover;background:var(--blush)}
+.empty{text-align:center;color:var(--ink-soft);padding:32px 10px}
+@media (max-width:480px){.hide-sm{display:none}}
+.btn-danger{border-color:var(--bad);color:var(--bad)}
+</style>
+</head>
+<body>
+
+<div class="demo-bar" id="demo-bar" hidden><div class="wrap"><span class="badge-demo">Modo demonstração</span> Os dados ficam só neste navegador.</div></div>
+
+<!-- Login -->
+<section class="login" id="v-login" hidden>
+  <img src="img/logo.png" alt="" width="72" height="72">
+  <h1>Área da doceria</h1>
+  <form id="login-form" class="panel" novalidate>
+    <div class="field"><label for="l-email">E-mail</label><input class="input" id="l-email" type="email" autocomplete="username" required></div>
+    <div class="field"><label for="l-senha">Senha</label><input class="input" id="l-senha" type="password" autocomplete="current-password" required></div>
+    <p class="err" id="login-err" role="alert"></p>
+    <p class="muted" id="login-demo" hidden style="margin:0">Modo demonstração: use qualquer e-mail e a senha <b>demo</b>.</p>
+    <button class="btn btn-primary btn-block" type="submit">Entrar</button>
+  </form>
+  <p><a href="./">Voltar para a loja</a></p>
+</section>
+
+<!-- Sem permissão -->
+<section class="login" id="v-noadmin" hidden>
+  <h1>Sem acesso</h1>
+  <p>Esta conta entrou, mas não tem permissão de administradora. Peça para cadastrar o seu usuário em <b>admins</b> no Firebase (veja o LEIA-ME).</p>
+  <button class="btn btn-ghost" type="button" data-sair>Sair</button>
+</section>
+
+<!-- Painel -->
+<div id="v-app" hidden>
+  <header class="top">
+    <div class="wrap">
+      <h1>Painel<span class="hide-sm"> da doceria</span></h1>
+      <button class="loja-btn on" id="loja-btn" type="button" aria-describedby="loja-dica"><span class="dot" aria-hidden="true"></span><span id="loja-txt">Loja ABERTA</span></button>
+      <span class="sr" id="loja-dica">Toque para abrir ou fechar a loja para pedidos pelo site</span>
+      <button class="btn btn-sm" type="button" data-sair>Sair</button>
+    </div>
+    <div class="confirm-bar" id="fechar-confirm" hidden>
+      <div class="wrap"><p>Fechar a loja? O site deixa de aceitar pedidos e manda os clientes para o WhatsApp.</p>
+        <button class="btn btn-primary btn-sm" type="button" id="fechar-sim">Fechar a loja</button>
+        <button class="btn btn-sm" type="button" id="fechar-nao">Cancelar</button></div>
+    </div>
+    <div class="wrap"><div class="tabs" role="tablist" aria-label="Seções do painel">
+      <button role="tab" id="t-pedidos" aria-controls="p-pedidos" aria-selected="true" type="button">Pedidos<span class="n" id="n-novos" hidden></span></button>
+      <button role="tab" id="t-cardapio" aria-controls="p-cardapio" aria-selected="false" tabindex="-1" type="button">Cardápio</button>
+      <button role="tab" id="t-config" aria-controls="p-config" aria-selected="false" tabindex="-1" type="button">Configurações</button>
+    </div></div>
+  </header>
+
+  <main class="wrap">
+    <section class="panel" id="p-pedidos" role="tabpanel" aria-labelledby="t-pedidos">
+      <div class="chips" id="filtros">
+        <button type="button" data-f="ativos" aria-pressed="true">Ativos</button>
+        <button type="button" data-f="concluidos" aria-pressed="false">Concluídos</button>
+        <button type="button" data-f="cancelados" aria-pressed="false">Cancelados</button>
+      </div>
+      <p class="muted" id="som-dica" style="margin:0;font-size:.85rem">Toque em qualquer lugar da página para ativar o aviso sonoro de novos pedidos.</p>
+      <div class="orders" id="pedidos" aria-live="polite"></div>
+    </section>
+
+    <section class="panel" id="p-cardapio" role="tabpanel" aria-labelledby="t-cardapio" hidden>
+      <div class="acts">
+        <button class="btn btn-primary" type="button" id="novo-item">Novo item</button>
+        <button class="btn btn-ghost" type="button" id="ver-cats" aria-expanded="false" aria-controls="cats-card">Categorias</button>
+      </div>
+      <div class="card" id="cats-card" hidden>
+        <h2>Categorias</h2>
+        <div id="cats-lista" class="panel" style="gap:8px"></div>
+        <form class="cat-row" id="cat-nova">
+          <label class="sr" for="cat-nome">Nova categoria</label>
+          <input class="input" id="cat-nome" placeholder="Nova categoria" maxlength="60">
+          <button class="btn btn-ghost btn-sm" type="submit">Adicionar</button>
+        </form>
+      </div>
+      <div id="cardapio" class="panel"></div>
+    </section>
+
+    <section class="panel" id="p-config" role="tabpanel" aria-labelledby="t-config" hidden>
+      <form id="cfg-form" class="panel" novalidate>
+        <div class="card"><h2>Funcionamento</h2>
+          <div class="field"><label for="cf-horario">Horário (aparece no site)</label><input class="input" id="cf-horario" maxlength="80"></div>
+          <div class="field"><label for="cf-msg">Mensagem quando estiver fechado</label><textarea class="input" id="cf-msg" maxlength="300"></textarea></div>
+          <div class="field"><label for="cf-wa">WhatsApp da doceria (com DDD)</label><input class="input" id="cf-wa" type="tel" inputmode="tel"></div>
+        </div>
+        <div class="card"><h2>Entrega e retirada</h2>
+          <label class="switch"><input type="checkbox" id="cf-entrega"><span class="track"></span>Fazer entregas</label>
+          <div class="field"><label for="cf-taxa">Taxa de entrega em R$ (deixe vazio para "a combinar")</label><input class="input" id="cf-taxa" type="number" min="0" step="0.5" inputmode="decimal"></div>
+          <label class="switch"><input type="checkbox" id="cf-retirada"><span class="track"></span>Aceitar retirada na doceria</label>
+          <div class="field"><label for="cf-min">Pedido mínimo em R$ (0 = sem mínimo)</label><input class="input" id="cf-min" type="number" min="0" step="1" inputmode="decimal"></div>
+        </div>
+        <div class="card"><h2>Pix</h2>
+          <label class="switch"><input type="checkbox" id="cf-pix"><span class="track"></span>Aceitar Pix</label>
+          <div class="field"><label for="cf-chave">Chave Pix</label><input class="input" id="cf-chave" maxlength="77" autocomplete="off"></div>
+          <div class="row2">
+            <div class="field"><label for="cf-pnome">Nome do recebedor</label><input class="input" id="cf-pnome" maxlength="25"></div>
+            <div class="field"><label for="cf-pcidade">Cidade</label><input class="input" id="cf-pcidade" maxlength="15"></div>
+          </div>
+          <div><p class="label" style="margin:0 0 6px">Prévia do código Pix (sem valor)</p><p class="pix-prev" id="pix-prev"></p></div>
+        </div>
+        <div class="card"><h2>Cartão (InfinitePay)</h2>
+          <label class="switch"><input type="checkbox" id="cf-cartao"><span class="track"></span>Aceitar cartão online</label>
+          <div class="field"><label for="cf-handle">InfiniteTag (sem o $)</label><input class="input" id="cf-handle" maxlength="60" autocomplete="off"></div>
+        </div>
+        <p class="err" id="cfg-err" role="alert"></p>
+        <button class="btn btn-primary" type="submit">Salvar configurações</button>
+      </form>
+      <div class="card" id="demo-card" hidden><h2>Demonstração</h2>
+        <p class="muted" style="margin:0">Apaga pedidos, cardápio e configurações de teste deste navegador.</p>
+        <button class="btn btn-ghost btn-danger" type="button" id="limpar-demo">Apagar dados de demonstração</button>
+      </div>
+    </section>
+  </main>
+</div>
+
+<!-- Modal: produto -->
+<div class="scrim" id="scrim"></div>
+<form class="sheet modal" id="m-prod" role="dialog" aria-modal="true" aria-labelledby="m-prod-t" aria-hidden="true" inert novalidate>
+  <div class="sheet-head"><h2 id="m-prod-t">Item</h2><button class="x" type="button" data-fechar-modal aria-label="Fechar">×</button></div>
+  <div class="sheet-body">
+    <div class="field"><label for="mp-nome">Nome</label><input class="input" id="mp-nome" maxlength="100" required></div>
+    <div class="field"><label for="mp-desc">Descrição</label><textarea class="input" id="mp-desc" maxlength="300"></textarea></div>
+    <div class="row2">
+      <div class="field"><label for="mp-preco">Preço (R$)</label><input class="input" id="mp-preco" type="number" min="0" step="0.5" inputmode="decimal" required></div>
+      <div class="field"><label for="mp-ordem">Ordem</label><input class="input" id="mp-ordem" type="number" step="1" inputmode="numeric"></div>
+    </div>
+    <div class="field"><label for="mp-cat">Categoria</label><select class="input" id="mp-cat"></select></div>
+    <label class="switch"><input type="checkbox" id="mp-disp"><span class="track"></span>Disponível hoje</label>
+    <div class="field"><label for="mp-foto">Foto</label>
+      <div class="acts"><img class="foto-prev" id="mp-prev" alt="Prévia da foto" width="96" height="96" hidden>
+        <input id="mp-foto" type="file" accept="image/*">
+        <button class="btn btn-sm" type="button" id="mp-sem-foto" hidden>Remover foto</button></div>
+    </div>
+    <p class="err" id="mp-err" role="alert"></p>
+  </div>
+  <div class="sheet-foot"><button class="btn btn-primary btn-block" type="submit">Salvar item</button></div>
+</form>
+
+<!-- Modal: confirmação -->
+<div class="sheet modal" id="m-conf" role="alertdialog" aria-modal="true" aria-labelledby="m-conf-t" aria-describedby="m-conf-d" aria-hidden="true" inert>
+  <div class="sheet-head"><h2 id="m-conf-t">Confirmar</h2></div>
+  <div class="sheet-body"><p id="m-conf-d" style="margin:0"></p></div>
+  <div class="sheet-foot"><button class="btn btn-primary btn-block" type="button" id="m-conf-sim">Confirmar</button><button class="btn btn-sm" type="button" data-fechar-modal>Cancelar</button></div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<script type="module" src="js/painel.js"></script>
+</body>
+</html>
