@@ -1,23 +1,29 @@
 # Site da Larissa Eiras Doceria Artesanal
 
-Site comercial da doceria (Paracambi, RJ): cardápio, fotos, contato e, em construção, loja própria com carrinho, entrega/retirada, Pix e cartão, para substituir o Instadelivery.
+Site comercial da doceria (Paracambi, RJ): loja própria com cardápio, sacola, entrega/retirada, Pix e cartão (InfinitePay) e painel da dona. Substitui o Instadelivery.
 
 ## Stack (confirmada)
 - HTML, CSS e JavaScript puros (ES modules). Sem framework e sem etapa de build.
 - Fontes: Google Fonts (Bodoni Moda + Figtree). QR Code: `qrcode-generator` via cdnjs.
-- Dados da loja (em construção): Firebase (Firestore + Auth) via SDK da gstatic; sem `FIREBASE_CONFIG` roda em modo demonstração (localStorage).
+- Dados: Firebase (Firestore + Auth) via SDK da gstatic; sem `FIREBASE_CONFIG` roda em modo demonstração (localStorage).
 - Hospedagem prevista: GitHub Pages + domínio próprio (ainda não configurados).
 - Testes: Playwright + axe-core (`tests/`).
 
 ## Comandos
-- `npm run dev` → servidor local em http://localhost:5173 (precisa de Python 3).
-- `npm test` → testes de fumaça e acessibilidade (desktop e celular). Na primeira vez: `npm install` e `npx playwright install chromium`.
+- `npm run dev` → servidor local em http://localhost:5173 (`python -m http.server`).
+- `npm test` → fluxos da loja/painel, Pix, acessibilidade (claro/escuro) e layout (desktop e celular), servidos por `tests/servidor.js`. Na primeira vez: `npm install` e `npx playwright install chromium`. Se o download do Chromium falhar: `PW_CHANNEL=chrome npm test` (usa o Chrome instalado).
 
 ## Estrutura
-- `index.html` → site publicado hoje (estático, links para Instadelivery/99Food/WhatsApp).
-- `index.src.html`, `js/`, `css/base.css` → loja nova em construção (`js/loja.js` e `admin.html` ainda não existem).
+- `index.html` + `js/loja.js` → loja. `admin.html` + `js/painel.js` → painel (login, aberto/fechado, pedidos, cardápio, configurações).
+- `css/base.css` → tokens e componentes compartilhados.
 - `js/config.js` → configuração da loja e cardápio inicial. `js/store.js` → dados (Firebase ou demo). `js/pix.js` → código Pix copia e cola.
+- `firestore.rules` (+ `firebase.json`) → regras do banco. `LEIA-ME.md` → passo a passo de Firebase, Pages e domínio para a dona.
 - `img/` → fotos já otimizadas (não abrir sem necessidade).
+
+## Status
+- Loja, painel, regras e testes prontos e rodando em modo demonstração.
+- Pendente (dona): criar o projeto Firebase e colar `FIREBASE_CONFIG`, chave Pix, InfiniteTag, taxa de entrega, GitHub Pages e domínio.
+- A criação do link InfinitePay pelo navegador não foi testada contra a API real (pode exigir função de servidor por CORS).
 
 ## Padrões
 - Cores e fontes só via tokens de `css/base.css` (claro e escuro). Não usar cores literais em componentes.

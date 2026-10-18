@@ -19,4 +19,4 @@ Fora do escopo: serviços de terceiros (Firebase, InfinitePay, GitHub Pages, 99F
 
 ## Observações
 
-Este documento trata só da comunicação de vulnerabilidades. As regras de segurança seguidas no desenvolvimento estão no `CLAUDE.md` e nas regras do Firestore (`firestore.rules`, quando adicionadas).
+Este documento trata só da comunicação de vulnerabilidades. As regras de segurança seguidas no desenvolvimento estão no `CLAUDE.md` e nas regras do Firestore (`firestore.rules`): leitura pública só de `loja/config` e `produtos`; pedidos são criados por visitantes com validação de campos e só administradoras (documento em `admins/<uid>`) leem e alteram pedidos, cardápio e configurações.
