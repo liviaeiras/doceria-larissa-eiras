@@ -206,7 +206,7 @@ let modalAberto = null, modalAbridor = null;
 function abrirModal(id) {
   modalAbridor = document.activeElement; modalAberto = $(id);
   modalAberto.inert = false; modalAberto.setAttribute("aria-hidden", "false"); modalAberto.classList.add("on"); $("scrim").classList.add("on");
-  setTimeout(() => modalAberto?.querySelector("input,textarea,select,button:not([data-fechar-modal])")?.focus(), 30);
+  modalAberto.querySelector("input,textarea,select,button:not([data-fechar-modal])")?.focus();
 }
 function fecharModal() {
   if (!modalAberto) return;

@@ -138,7 +138,7 @@ function abrir(v = "sacola") {
   mostrar(v);
   d.inert = false; d.setAttribute("aria-hidden", "false"); d.classList.add("on"); $("scrim").classList.add("on");
   atualizarSacola();
-  setTimeout(() => (focaveis()[0] || $("close-cart")).focus(), 30);
+  (focaveis()[0] || $("close-cart")).focus();
 }
 function fechar() {
   const d = $("drawer");
@@ -348,7 +348,7 @@ async function pagarCartao(p) {
 function mostrarFim(corpo, rodape) {
   $("v-fim").innerHTML = corpo; $("f-fim").innerHTML = rodape;
   if ($("drawer").classList.contains("on")) mostrar("fim"); else abrir("fim");
-  setTimeout(() => (focaveis()[0] || $("close-cart")).focus(), 40);
+  (focaveis()[0] || $("close-cart")).focus();
 }
 
 async function retornoCartao() {
@@ -379,7 +379,7 @@ function ligarEventos() {
   });
   $("drawer").addEventListener("click", e => {
     if (e.target.closest("[data-fechar]")) return fechar();
-    if (e.target.closest("#ir-dados")) return mostrar("dados"), setTimeout(() => $("c-nome").focus(), 30);
+    if (e.target.closest("#ir-dados")) return mostrar("dados"), $("c-nome").focus();
     const b = e.target.closest("[data-inc],[data-dec]");
     if (b) {
       const id = b.dataset.inc || b.dataset.dec;
@@ -391,7 +391,7 @@ function ligarEventos() {
   $("cart-float").onclick = () => abrir("sacola");
   $("close-cart").onclick = fechar;
   $("scrim").onclick = fechar;
-  $("voltar").onclick = () => { mostrar("sacola"); setTimeout(() => (focaveis()[0] || $("close-cart")).focus(), 30); };
+  $("voltar").onclick = () => { mostrar("sacola"); (focaveis()[0] || $("close-cart")).focus(); };
   $("enviar").onclick = enviar;
   $("v-dados").addEventListener("submit", e => { e.preventDefault(); enviar(); });
   $("v-dados").addEventListener("change", e => {
