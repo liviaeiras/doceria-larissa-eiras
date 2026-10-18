@@ -29,8 +29,7 @@ export const LOJA_PADRAO = {
   pedidoMinimo: 0,
   aceitaPix: true,
   pix: { chave: "", nome: "LARISSA EIRAS", cidade: "PARACAMBI" },
-  aceitaCartao: true,
-  infinitepayHandle: "",      // InfiniteTag sem o $
+  aceitaCartao: true,         // cartão: a doceria envia o link do Mercado Pago pelo WhatsApp
   categorias: [
     { id: "tortas", nome: "Tortas" },
     { id: "bolo-fatia", nome: "Bolo Fatia" },

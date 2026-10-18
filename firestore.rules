@@ -27,24 +27,12 @@ service cloud.firestore {
         && ((d.tipo == 'retirada' && d.endereco == null) || (d.tipo == 'entrega' && enderecoValido(d.endereco)))
         && d.itens is list && d.itens.size() >= 1 && d.itens.size() <= 50
         && num(d.subtotal) && num(d.total) && (d.taxa == null || num(d.taxa))
-        && d.pagamento in ['pix', 'cartao', 'whatsapp']
+        && d.pagamento in ['pix', 'cartao_link', 'whatsapp']
         && txt(d.obs, 500)
         && cheio(d.numero, 12)
         && d.status == 'novo'
         && d.pago == false
         && d.criadoEm == request.time;
-    }
-
-    // Retorno do checkout do cartão: o visitante só pode gravar uma vez, e só esse campo.
-    function retornoValido() {
-      let r = request.resource.data.retornoPagamento;
-      return !('retornoPagamento' in resource.data)
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['retornoPagamento'])
-        && r is map
-        && r.keys().hasOnly(['receipt_url', 'order_nsu', 'slug', 'capture_method', 'transaction_nsu', 'em'])
-        && txt(r.get('receipt_url', ''), 300) && txt(r.get('order_nsu', ''), 300) && txt(r.get('slug', ''), 300)
-        && txt(r.get('capture_method', ''), 300) && txt(r.get('transaction_nsu', ''), 300)
-        && r.get('em', 0) is number;
     }
 
     match /loja/config {
@@ -59,8 +47,7 @@ service cloud.firestore {
 
     match /pedidos/{id} {
       allow create: if pedidoValido(request.resource.data);
-      allow read, delete: if isAdmin();
-      allow update: if isAdmin() || retornoValido();
+      allow read, update, delete: if isAdmin();
     }
 
     match /admins/{uid} {

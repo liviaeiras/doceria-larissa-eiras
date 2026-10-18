@@ -15,7 +15,7 @@ Inclua, se possível: o que você encontrou, como reproduzir e o impacto. Respon
 - Site público e loja (páginas HTML/JS deste repositório).
 - Painel administrativo e regras do banco de dados (Firestore).
 
-Fora do escopo: serviços de terceiros (Firebase, InfinitePay, GitHub Pages, 99Food), que têm canais próprios.
+Fora do escopo: serviços de terceiros (Firebase, Mercado Pago, GitHub Pages, 99Food), que têm canais próprios.
 
 ## Observações
 

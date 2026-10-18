@@ -1,6 +1,6 @@
 # Site da Larissa Eiras Doceria Artesanal
 
-Site comercial da doceria (Paracambi, RJ): loja própria com cardápio, sacola, entrega/retirada, Pix e cartão (InfinitePay) e painel da dona. Substitui o Instadelivery.
+Site comercial da doceria (Paracambi, RJ): loja própria com cardápio, sacola, entrega/retirada, Pix e cartão (link do Mercado Pago enviado pela doceria no WhatsApp) e painel da dona. Substitui o Instadelivery.
 
 ## Stack (confirmada)
 - HTML, CSS e JavaScript puros (ES modules). Sem framework e sem etapa de build.
@@ -22,8 +22,7 @@ Site comercial da doceria (Paracambi, RJ): loja própria com cardápio, sacola, 
 
 ## Status
 - Loja, painel, regras e testes prontos e rodando em modo demonstração.
-- Pendente (dona): criar o projeto Firebase e colar `FIREBASE_CONFIG`, chave Pix, InfiniteTag, taxa de entrega, GitHub Pages e domínio.
-- A criação do link InfinitePay pelo navegador não foi testada contra a API real (pode exigir função de servidor por CORS).
+- Pendente (dona): criar o projeto Firebase e colar `FIREBASE_CONFIG`, chave Pix, taxa de entrega, GitHub Pages e domínio.
 
 ## Padrões
 - Cores e fontes só via tokens de `css/base.css` (claro e escuro). Não usar cores literais em componentes.
@@ -35,7 +34,7 @@ Site comercial da doceria (Paracambi, RJ): loja própria com cardápio, sacola, 
 - Nunca commitar segredos (`.env`, tokens, senhas). A config web do Firebase é pública por natureza; a proteção vem das regras do Firestore.
 - Pedidos são criados por visitantes anônimos: validar dados nas regras do Firestore e escapar todo texto do usuário ao renderizar (`esc()`), nunca `innerHTML` com dado cru.
 - Preços enviados pelo cliente não são confiáveis: a Larissa confere o total no painel.
-- Pagamento por cartão: InfinitePay (link de checkout). Não guardar dados de cartão.
+- Pagamento por cartão: manual, link do Mercado Pago enviado pelo WhatsApp (`cartao_link`). Não guardar dados de cartão.
 
 ## Acessibilidade e desempenho
 - WCAG 2.1 AA: contraste ≥ 4.5:1, foco visível, rótulos em todos os campos, botões com nome acessível, `prefers-reduced-motion`.

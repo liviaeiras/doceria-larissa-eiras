@@ -1,6 +1,6 @@
 # Site da Larissa Eiras Doceria Artesanal
 
-Loja própria da doceria: o cliente monta a sacola, escolhe **entrega** ou **retirada** e paga por **Pix** (QR Code com o valor certo) ou **cartão** (InfinitePay). A Larissa acompanha tudo no **painel** (`admin.html`).
+Loja própria da doceria: o cliente monta a sacola, escolhe **entrega** ou **retirada** e paga por **Pix** (QR Code com o valor certo) ou **cartão** (a Larissa envia o link de pagamento do Mercado Pago pelo WhatsApp). A Larissa acompanha tudo no **painel** (`admin.html`).
 
 - `index.html` → loja (o que o cliente vê)
 - `admin.html` → painel da doceria (pedidos, cardápio, configurações, aberto/fechado)
@@ -49,7 +49,7 @@ Só quem tem um documento em `admins` consegue ver pedidos e mudar o cardápio. 
 
 1. Abra `admin.html` (ou clique em **Área da doceria** no rodapé do site) e entre com o e-mail e a senha da Larissa.
 2. Aba **Cardápio → Importar cardápio inicial** (traz os itens e fotos que já estão no site).
-3. Aba **Configurações**: preencha a **chave Pix**, o nome do recebedor e a cidade (confira a prévia), a **InfiniteTag** (sem o `$`), a **taxa de entrega** (vazio = "a combinar") e o pedido mínimo. Clique em **Salvar configurações**.
+3. Aba **Configurações**: preencha a **chave Pix**, o nome do recebedor e a cidade (confira a prévia), se aceita **cartão**, a **taxa de entrega** (vazio = "a combinar") e o pedido mínimo. Clique em **Salvar configurações**.
 4. No topo, o botão **Loja ABERTA / Loja FECHADA** controla se o site aceita pedidos. Fechada, o site manda os clientes para o WhatsApp.
 
 Dica: deixe o painel aberto no celular ou computador e toque uma vez na página para liberar o **som** de pedido novo.
@@ -86,7 +86,7 @@ Testes automáticos: `npm test` (na primeira vez: `npm install` e `npx playwrigh
 ## 8. Limitações conhecidas
 
 - **O total é calculado no navegador do cliente.** Alguém mal-intencionado poderia alterar valores. A Larissa deve conferir o total de cada pedido no painel antes de confirmar.
-- **Cartão:** o retorno da InfinitePay para o site não prova sozinho que o pagamento foi aprovado. Confirme pelo botão **Verificar pagamento** no pedido ou pelo app da InfinitePay antes de marcar como **Pago**.
-- **Link da InfinitePay:** o site cria o link de pagamento direto do navegador. Se a InfinitePay bloquear esse tipo de chamada (CORS) ou mudar a resposta, o cliente vê um aviso e pode pagar por Pix ou combinar no WhatsApp; o pedido continua registrado. Nesse caso, o próximo passo é criar uma pequena função de servidor (por exemplo, Cloudflare Workers ou Firebase Functions) que gere o link.
+- **Cartão (manual):** quando o cliente escolhe cartão, o pedido chega com o botão **Enviar link de pagamento**. Ele abre o WhatsApp do cliente com a mensagem e o total prontos; cole no fim o link gerado no app do Mercado Pago (Cobrar → Link de pagamento) e envie. Marque **Pago** quando o pagamento aparecer no Mercado Pago.
+- **Melhoria futura:** Checkout Pro do Mercado Pago via servidor (uma pequena função, por exemplo Cloudflare Workers ou Firebase Functions, que gere o link e receba a confirmação automática do pagamento).
 - **Pix:** o código é estático (copia e cola com valor). O banco não avisa o site quando o Pix cai; a Larissa confere o comprovante enviado pelo WhatsApp ou o extrato.
 - **Fotos novas** enviadas pelo painel ficam guardadas dentro do próprio banco, reduzidas (até 400 px, ~120 KB), porque o Firebase Storage exige plano pago.

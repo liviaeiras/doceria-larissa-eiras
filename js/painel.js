@@ -90,7 +90,7 @@ abas.forEach((a, i) => {
 const STATUS = { novo: "Novo", preparo: "Em preparo", saiu: "Saiu para entrega", pronto: "Pronto para retirada", concluido: "Concluído", cancelado: "Cancelado" };
 const proximo = p => ({ novo: "preparo", preparo: p.tipo === "entrega" ? "saiu" : "pronto", saiu: "concluido", pronto: "concluido" }[p.status]);
 const GRUPO = { ativos: ["novo", "preparo", "saiu", "pronto"], concluidos: ["concluido"], cancelados: ["cancelado"] };
-const PAG = { pix: "Pix", cartao: "Cartão online", whatsapp: "Combinar no WhatsApp" };
+const PAG = { pix: "Pix", cartao_link: "Cartão (link Mercado Pago)", whatsapp: "Combinar no WhatsApp" };
 
 let audio = null;
 document.addEventListener("pointerdown", () => {
@@ -127,12 +127,17 @@ function msgCliente(p) {
   }[p.status] || `sobre o seu pedido #${p.numero}:`;
   return `Olá, ${nome}! Aqui é da Larissa Eiras Doceria: ${txt}`;
 }
+// A Larissa cola o link do Mercado Pago no fim da mensagem antes de enviar.
+function msgLink(p) {
+  const nome = (p.cliente?.nome || "").split(" ")[0];
+  return `Olá, ${nome}! Aqui é da Larissa Eiras Doceria. Segue o link de pagamento com cartão do seu pedido #${p.numero}, no valor de ${brl(p.total)}${p.taxa === null ? " (a entrega é combinada à parte)" : ""}:
+`;
+}
 function cartaoPedido(p) {
   const tel = soDigitos(p.cliente?.telefone), e = p.endereco, prox = proximo(p);
   const quando = new Date(p.criadoEm).toLocaleString("pt-BR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" });
   const end = e ? `${e.rua}, ${e.numero} - ${e.bairro}` : "";
   const mapa = e ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(end + ", Paracambi - RJ")}` : "";
-  const rp = p.retornoPagamento, recibo = rp && /^https:\/\//.test(rp.receipt_url || "") ? rp.receipt_url : "";
   return `<article class="order st-${esc(p.status)}${frescos.has(p.id) ? " fresh" : ""}" data-id="${esc(p.id)}" aria-label="Pedido ${esc(p.numero)}">
     <h3><span>#${esc(p.numero)}</span><small>${esc(quando)}</small></h3>
     <div class="acts"><span class="st ${p.status === "novo" ? "novo" : ""}">${esc(STATUS[p.status] || p.status)}</span>${p.pago ? `<span class="st pago">Pago</span>` : ""}</div>
@@ -141,10 +146,9 @@ function cartaoPedido(p) {
     <ul>${(p.itens || []).map(i => `<li>${esc(i.qtd)}× ${esc(i.nome)} <span class="muted">(${brl(i.qtd * i.preco)})</span></li>`).join("")}</ul>
     ${p.obs ? `<p class="note-box" style="background:var(--blush);border-radius:12px;padding:8px 10px"><b>Obs.:</b> ${esc(p.obs)}</p>` : ""}
     <p>Subtotal ${brl(p.subtotal)}${p.tipo === "entrega" ? ` · Entrega ${p.taxa === null ? "a combinar" : brl(p.taxa)}` : ""}<br><b>Total ${brl(p.total)}${p.taxa === null ? " + entrega" : ""}</b> · ${esc(PAG[p.pagamento] || p.pagamento)}</p>
-    ${recibo ? `<p><a href="${esc(recibo)}" target="_blank" rel="noopener">Comprovante do cartão</a></p>` : ""}
     <div class="acts">
       <label class="switch"><input type="checkbox" data-pago${p.pago ? " checked" : ""}><span class="track"></span>Pago</label>
-      ${p.pagamento === "cartao" && rp && !p.pago ? `<button class="btn btn-ghost btn-sm" type="button" data-verificar>Verificar pagamento</button>` : ""}
+      ${p.pagamento === "cartao_link" && !p.pago && tel ? `<a class="btn btn-ghost btn-sm" href="https://wa.me/55${esc(tel)}?text=${encodeURIComponent(msgLink(p))}" target="_blank" rel="noopener">Enviar link de pagamento</a>` : ""}
     </div>
     <div class="acts">
       ${tel ? `<a class="btn btn-wa btn-sm" href="https://wa.me/55${esc(tel)}?text=${encodeURIComponent(msgCliente(p))}" target="_blank" rel="noopener">WhatsApp do cliente</a>` : ""}
@@ -178,29 +182,12 @@ $("pedidos").addEventListener("click", async e => {
     return confirmar("Cancelar pedido", `Cancelar o pedido #${p.numero} de ${p.cliente?.nome}?`, "Cancelar pedido",
       () => tentar(() => store.atualizarPedido(id, { status: "cancelado" }), "Pedido cancelado"));
   }
-  if (e.target.closest("[data-verificar]")) return verificarPagamento(p, e.target.closest("[data-verificar]"));
 });
 $("pedidos").addEventListener("change", e => {
   if (!e.target.matches("[data-pago]")) return;
   const id = e.target.closest(".order").dataset.id;
   tentar(() => store.atualizarPedido(id, { pago: e.target.checked }), e.target.checked ? "Marcado como pago" : "Marcado como não pago");
 });
-async function verificarPagamento(p, btn) {
-  const rp = p.retornoPagamento || {};
-  btn.disabled = true; btn.textContent = "Verificando…";
-  try {
-    const r = await fetch("https://api.checkout.infinitepay.io/payment_check", {
-      method: "POST", headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ handle: cfg.infinitepayHandle, order_nsu: p.id, transaction_nsu: rp.transaction_nsu, slug: rp.slug })
-    });
-    const data = await r.json().catch(() => ({}));
-    if (data.paid === true) { await store.atualizarPedido(p.id, { pago: true }); toast(`Pedido #${p.numero}: pagamento confirmado`); }
-    else toast("Pagamento ainda não confirmado. Confira no app da InfinitePay.");
-  } catch (e) {
-    console.error(e); toast("Não foi possível verificar agora. Confira no app da InfinitePay.");
-  } finally { btn.disabled = false; btn.textContent = "Verificar pagamento"; }
-}
-
 /* ---------------- Modais ---------------- */
 let modalAberto = null, modalAbridor = null;
 function abrirModal(id) {
@@ -393,7 +380,7 @@ function preencherConfig() {
   $("cf-retirada").checked = cfg.retiradaAtiva !== false; $("cf-min").value = cfg.pedidoMinimo || 0;
   $("cf-pix").checked = !!cfg.aceitaPix; $("cf-chave").value = cfg.pix?.chave || "";
   $("cf-pnome").value = cfg.pix?.nome || ""; $("cf-pcidade").value = cfg.pix?.cidade || "";
-  $("cf-cartao").checked = !!cfg.aceitaCartao; $("cf-handle").value = cfg.infinitepayHandle || "";
+  $("cf-cartao").checked = !!cfg.aceitaCartao;
   previaPix();
 }
 function previaPix() {
@@ -411,17 +398,14 @@ $("cfg-form").addEventListener("submit", async e => {
   const min = Number($("cf-min").value || 0); if (!(min >= 0)) return err("Pedido mínimo inválido.", "cf-min");
   if (!$("cf-entrega").checked && !$("cf-retirada").checked) return err("Ative entrega ou retirada (ou as duas).", "cf-entrega");
   if ($("cf-pix").checked && !$("cf-chave").value.trim()) return err("Para aceitar Pix, informe a chave.", "cf-chave");
-  const handle = $("cf-handle").value.trim().replace(/^\$/, "");
-  if ($("cf-cartao").checked && !handle) return err("Para aceitar cartão, informe a InfiniteTag.", "cf-handle");
   $("cfg-err").textContent = "";
   const patch = {
     horarioTexto: $("cf-horario").value.trim(), mensagemFechado: $("cf-msg").value.trim(), whatsapp: wa,
     entregaAtiva: $("cf-entrega").checked, taxaEntrega: taxa === null ? null : Math.round(taxa * 100) / 100,
     retiradaAtiva: $("cf-retirada").checked, pedidoMinimo: min,
     aceitaPix: $("cf-pix").checked, pix: { chave: $("cf-chave").value.trim(), nome: $("cf-pnome").value.trim(), cidade: $("cf-pcidade").value.trim() },
-    aceitaCartao: $("cf-cartao").checked, infinitepayHandle: handle
+    aceitaCartao: $("cf-cartao").checked
   };
-  $("cf-handle").value = handle;
   tentar(() => store.salvarConfig(patch), "Configurações salvas");
 });
 $("limpar-demo").onclick = () => confirmar("Apagar demonstração", "Apagar todos os pedidos, cardápio e configurações de teste deste navegador?", "Apagar", () => store.limparDemo());

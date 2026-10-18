@@ -1,4 +1,4 @@
-// Loja: cardápio, sacola, checkout (Pix, cartão InfinitePay ou WhatsApp) e retorno do pagamento.
+// Loja: cardápio, sacola e checkout (Pix, link de cartão pelo WhatsApp ou combinar no WhatsApp).
 import { iniciarStore } from "./store.js";
 import { gerarPix } from "./pix.js";
 
@@ -7,8 +7,7 @@ const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": 
 const brl = n => Number(n || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 const soDigitos = s => String(s || "").replace(/\D/g, "");
 const fotoOk = f => /^(img\/|data:image\/|https:\/\/)/.test(String(f || ""));
-const DEV = ["localhost", "127.0.0.1"].includes(location.hostname);
-const LS_SACOLA = "le_sacola", LS_ULTIMO = "le_ultimo_pedido";
+const LS_SACOLA = "le_sacola";
 const lerLS = (k, padrao) => { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : padrao; } catch (e) { return padrao; } };
 const gravarLS = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} };
 
@@ -180,7 +179,7 @@ function renderSacola() {
 
 /* ---------------- Checkout ---------------- */
 const temPix = () => cfg.aceitaPix && !!String(cfg.pix?.chave || "").trim();
-const temCartao = () => cfg.aceitaCartao && !!String(cfg.infinitepayHandle || "").trim();
+const temCartao = () => !!cfg.aceitaCartao;
 const taxaNum = () => typeof cfg.taxaEntrega === "number" && cfg.taxaEntrega >= 0;
 const radio = nome => document.querySelector(`input[name="${nome}"]:checked`)?.value || "";
 
@@ -272,10 +271,9 @@ async function enviar() {
   } finally { enviando = false; $("enviar").textContent = "Finalizar pedido"; renderTotais(); }
   sacola = {}; gravarLS(LS_SACOLA, sacola);
   const ped = { ...pedido, ...res };
-  gravarLS(LS_ULTIMO, { id: res.id, numero: res.numero, msg: mensagemWa(ped) });
   atualizarSacola();
   if (pagamento === "pix") telaPix(ped);
-  else if (pagamento === "cartao") pagarCartao(ped);
+  else if (pagamento === "cartao_link") telaCartao(ped);
   else telaCombinar(ped);
 }
 
@@ -290,7 +288,7 @@ function mensagemWa(p, extra = "") {
     L.push(`*Entrega:* ${e.rua}, ${e.numero} - ${e.bairro}${e.complemento ? ` (${e.complemento})` : ""}`);
     if (e.referencia) L.push(`Referência: ${e.referencia}`);
   } else L.push(`*Retirada* na ${cfg.endereco || "doceria"}`);
-  L.push(`Pagamento: ${{ pix: "Pix", cartao: "Cartão online", whatsapp: "combinar no WhatsApp" }[p.pagamento]}`);
+  L.push(`Pagamento: ${{ pix: "Pix", cartao_link: "Cartão (link do Mercado Pago)", whatsapp: "combinar no WhatsApp" }[p.pagamento]}`);
   L.push(`Nome: ${p.cliente.nome}`, `WhatsApp: ${p.cliente.telefone}`);
   if (p.obs) L.push(`Observações: ${p.obs}`);
   if (extra) L.push("", extra);
@@ -312,68 +310,31 @@ function telaPix(p) {
       <textarea class="pix-code" id="pix-code" readonly rows="3">${esc(codigo)}</textarea>
       <button class="btn btn-ghost btn-sm" type="button" id="copiar-pix">Copiar código Pix</button>
     </div>
-    <div class="note-box">${aCombinar ? "<b>A taxa de entrega é combinada e paga à parte.</b> " : ""}Depois de pagar, envie o comprovante no WhatsApp. A doceria confirma seu pedido por lá.</div>`,
-    `<a class="btn btn-wa btn-block" href="${esc(waLink(mensagemWa(p, "Segue o comprovante do Pix.")))}" target="_blank" rel="noopener">Enviar comprovante no WhatsApp</a>
+    <div class="note-box">${aCombinar ? "<b>A taxa de entrega é combinada e paga à parte.</b> " : ""}Confirme o pedido no WhatsApp e envie o comprovante do Pix por lá.</div>`,
+    `<a class="btn btn-wa btn-block" href="${esc(waLink(mensagemWa(p, "Vou pagar pelo Pix e envio o comprovante aqui.")))}" target="_blank" rel="noopener">Confirmar pedido no WhatsApp</a>
      <button class="btn btn-sm" type="button" data-fechar>Fechar</button>`);
   $("copiar-pix").onclick = () => copiar(codigo, $("pix-code"));
 }
 
-function telaCombinar(p, aviso = "") {
+function telaCombinar(p) {
   mostrarFim(`<div class="done-mark" aria-hidden="true">✓</div><p class="order-no">Pedido #${esc(p.numero)}</p>
-    ${aviso ? `<p class="err" role="alert">${esc(aviso)}</p>` : ""}
-    <div class="note-box">Seu pedido foi registrado. Envie a mensagem no WhatsApp para combinar o pagamento${p.tipo === "entrega" ? " e a entrega" : ""} com a doceria.</div>`,
-    `<a class="btn btn-wa btn-block" href="${esc(waLink(mensagemWa(p)))}" target="_blank" rel="noopener">Combinar no WhatsApp</a>
-     ${aviso && temPix() ? `<button class="btn btn-ghost btn-block" type="button" id="usar-pix">Pagar com Pix</button>` : ""}
+    <div class="note-box">Seu pedido foi registrado. Confirme no WhatsApp para combinar o pagamento${p.tipo === "entrega" ? " e a entrega" : ""} com a doceria.</div>`,
+    `<a class="btn btn-wa btn-block" href="${esc(waLink(mensagemWa(p)))}" target="_blank" rel="noopener">Confirmar pedido no WhatsApp</a>
      <button class="btn btn-sm" type="button" data-fechar>Fechar</button>`);
-  const b = $("usar-pix"); if (b) b.onclick = () => telaPix(p);
 }
 
-async function pagarCartao(p) {
-  mostrarFim(`<p class="order-no">Pedido #${esc(p.numero)}</p><p class="muted" style="text-align:center" role="status">Abrindo o pagamento com cartão…</p>`, "");
-  const itens = p.itens.map(i => ({ quantity: i.qtd, price: Math.round(i.preco * 100), description: i.nome.slice(0, 100) }));
-  if (typeof p.taxa === "number" && p.taxa > 0) itens.push({ quantity: 1, price: Math.round(p.taxa * 100), description: "Taxa de entrega" });
-  const corpo = {
-    handle: String(cfg.infinitepayHandle).trim().replace(/^\$/, ""),
-    items: itens,
-    order_nsu: p.id,
-    redirect_url: location.origin + location.pathname + "?pedido=" + encodeURIComponent(p.id),
-    customer: { name: p.cliente.nome, phone_number: "+55" + p.cliente.telefone }
-  };
-  if (p.tipo === "entrega") corpo.address = { cep: "26600000", street: p.endereco.rua, number: p.endereco.numero, neighborhood: p.endereco.bairro, complement: p.endereco.complemento };
-  try {
-    const r = await fetch("https://api.checkout.infinitepay.io/links", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(corpo) });
-    const data = await r.json().catch(() => ({}));
-    if (DEV) console.log("InfinitePay /links", r.status, data);
-    const url = data.url || data.link || data.checkout_url;
-    if (!r.ok || !/^https:\/\//.test(url || "")) throw new Error("sem URL de checkout");
-    location.href = url;
-  } catch (e) {
-    console.error("Falha ao criar link InfinitePay", e);
-    telaCombinar(p, "Não conseguimos abrir o pagamento por cartão agora. Seu pedido já foi registrado: pague com Pix ou combine no WhatsApp.");
-  }
+function telaCartao(p) {
+  mostrarFim(`<div class="done-mark" aria-hidden="true">✓</div><p class="order-no">Pedido #${esc(p.numero)}</p>
+    <p class="muted" style="margin:0;text-align:center">Total: <b>${brl(p.total)}${p.taxa === null ? " + entrega" : ""}</b></p>
+    <div class="note-box"><b>A Larissa vai te enviar o link de pagamento do Mercado Pago pelo WhatsApp.</b> Confirme o pedido por lá para receber o link.</div>`,
+    `<a class="btn btn-wa btn-block" href="${esc(waLink(mensagemWa(p, "Quero pagar com cartão: pode me enviar o link de pagamento do Mercado Pago?")))}" target="_blank" rel="noopener">Confirmar pedido no WhatsApp</a>
+     <button class="btn btn-sm" type="button" data-fechar>Fechar</button>`);
 }
 
 function mostrarFim(corpo, rodape) {
   $("v-fim").innerHTML = corpo; $("f-fim").innerHTML = rodape;
   if ($("drawer").classList.contains("on")) mostrar("fim"); else abrir("fim");
   (focaveis()[0] || $("close-cart")).focus();
-}
-
-async function retornoCartao() {
-  const q = new URLSearchParams(location.search), id = q.get("pedido");
-  if (!id) return;
-  history.replaceState(null, "", location.pathname + location.hash);
-  const info = {};
-  ["receipt_url", "order_nsu", "slug", "capture_method", "transaction_nsu"].forEach(k => { const v = q.get(k); if (v) info[k] = v.slice(0, 300); });
-  try { await store.registrarRetornoPagamento(id, info); } catch (e) { console.warn("Retorno do pagamento já registrado ou indisponível", e); }
-  const ult = lerLS(LS_ULTIMO, {}), numero = ult.id === id ? ult.numero : "";
-  const recibo = /^https:\/\//.test(info.receipt_url || "") ? info.receipt_url : "";
-  mostrarFim(`<div class="done-mark" aria-hidden="true">✓</div>
-    <p class="order-no">${numero ? `Pedido #${esc(numero)}` : "Pagamento enviado"}</p>
-    <div class="note-box">Recebemos o retorno do pagamento com cartão. <b>A confirmação final é feita pela doceria</b>, que confere o pagamento e fala com você no WhatsApp.</div>
-    ${recibo ? `<p style="margin:0;text-align:center"><a href="${esc(recibo)}" target="_blank" rel="noopener">Ver comprovante do cartão</a></p>` : ""}`,
-    `<a class="btn btn-wa btn-block" href="${esc(waLink(ult.id === id ? ult.msg + "\n\nPaguei com cartão." : "Olá! Acabei de pagar meu pedido com cartão pelo site."))}" target="_blank" rel="noopener">Avisar no WhatsApp</a>
-     <button class="btn btn-sm" type="button" data-fechar>Fechar</button>`);
 }
 
 /* ---------------- Início ---------------- */
@@ -427,11 +388,7 @@ async function iniciar() {
   ligarWa();
   store = await iniciarStore();
   $("demo-bar").hidden = store.modo !== "demo";
-  let pronto = false;
-  store.onConfig(c => {
-    cfg = c; renderStatus(); renderMenu(); atualizarSacola();
-    if (!pronto) { pronto = true; retornoCartao(); }
-  });
+  store.onConfig(c => { cfg = c; renderStatus(); renderMenu(); atualizarSacola(); });
   store.onProdutos(lista => {
     produtos = lista; carregou = true;
     if (lista.length) {

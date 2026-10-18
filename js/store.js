@@ -33,9 +33,6 @@ async function firebaseStore(cfg) {
       const ref = await F.addDoc(pedCol, { ...p, numero, status: "novo", pago: false, criadoEm: F.serverTimestamp() });
       return { id: ref.id, numero };
     },
-    async registrarRetornoPagamento(id, info) {
-      await F.updateDoc(F.doc(db, "pedidos", id), { retornoPagamento: { ...info, em: Date.now() } });
-    },
     // ---- painel ----
     onAuth(cb) {
       return A.onAuthStateChanged(auth, async u => {
@@ -97,9 +94,6 @@ function demoStore() {
       const numero = novoNumero(), id = "d" + Date.now();
       put(K.ped, [...(get(K.ped) || []), { ...p, id, numero, status: "novo", pago: false, criadoEm: Date.now() }]);
       return { id, numero };
-    },
-    async registrarRetornoPagamento(id, info) {
-      put(K.ped, (get(K.ped) || []).map(x => x.id === id ? { ...x, retornoPagamento: { ...info, em: Date.now() } } : x));
     },
     onAuth(cb) { authCbs.add(cb); queueMicrotask(() => cb(usuario, !!usuario)); return () => authCbs.delete(cb); },
     async entrar(email, senha) {
