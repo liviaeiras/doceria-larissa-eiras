@@ -14,7 +14,8 @@ Site comercial da doceria (Paracambi, RJ): loja própria com cardápio, sacola, 
 - `npm test` → fluxos da loja/painel, Pix, acessibilidade (claro/escuro) e layout (desktop e celular), servidos por `tests/servidor.js`. Na primeira vez: `npm install` e `npx playwright install chromium`. Se o download do Chromium falhar: `PW_CHANNEL=chrome npm test` (usa o Chrome instalado).
 
 ## Estrutura
-- `index.html` + `js/loja.js` → loja. `admin.html` + `js/painel.js` → painel (login, aberto/fechado, pedidos, cardápio, configurações).
+- `index.html` + `js/loja.js` → loja (vitrine "Fatias da casa" usa `destaque` dos produtos). `admin.html` + `js/painel.js` → painel (Resumo, pedidos, cardápio, configurações, aberto/fechado); `manifest.webmanifest` só no admin.
+- `privacidade.html` → política de privacidade. Ícones (`favicon.*`, `apple-touch-icon.png`, `icon-*.png`) ficam na raiz; caminhos sempre relativos (subpasta do GitHub Pages).
 - `css/base.css` → tokens e componentes compartilhados.
 - `js/config.js` → configuração da loja e cardápio inicial. `js/store.js` → dados (Firebase ou demo). `js/pix.js` → código Pix copia e cola.
 - `firestore.rules` (+ `firebase.json`) → regras do banco. `LEIA-ME.md` → passo a passo de Firebase, Pages e domínio para a dona.
@@ -23,7 +24,7 @@ Site comercial da doceria (Paracambi, RJ): loja própria com cardápio, sacola, 
 ## Status
 - Loja, painel, regras e testes prontos e rodando em modo demonstração.
 - `SITE_URL` (js/config.js) e as URLs absolutas de og:url, og:image e JSON-LD no `index.html` apontam para o GitHub Pages: trocar para https://larissaeiras.com.br/ quando o domínio estiver ativo.
-- Pendente (dona): criar o projeto Firebase e colar `FIREBASE_CONFIG`, chave Pix, taxa de entrega, GitHub Pages e domínio.
+- Pendente (dona): criar o projeto Firebase e colar `FIREBASE_CONFIG`, `APP_CHECK_SITE_KEY`, `CNPJ`, chave Pix, taxa de entrega e domínio. `firestore.rules` não foi compilado no emulador (sem firebase-tools).
 
 ## Padrões
 - Cores e fontes só via tokens de `css/base.css` (claro e escuro). Não usar cores literais em componentes.

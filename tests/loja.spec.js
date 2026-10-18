@@ -150,3 +150,122 @@ test("sem rolagem horizontal em 390px (loja e painel)", async ({ page }) => {
     expect(await largura(), "painel " + aba).toBeLessThanOrEqual(0);
   }
 });
+
+// ---------- Vitrine, cartão por link, total divergente, Resumo e privacidade ----------
+const ped = (o) => ({ cliente: { nome: "Teste", telefone: "21999990000" }, tipo: "retirada", endereco: null, taxa: 0, obs: "",
+  status: "novo", pago: false, criadoEm: Date.now(), ...o });
+async function semearPedidos(page, lista) {
+  await page.goto("/admin.html");
+  await page.evaluate(l => localStorage.setItem("le_demo_pedidos", JSON.stringify(l)), lista);
+}
+
+test("início: moldura com a logo, faixa Fatias da casa e nenhuma etiqueta de preço na foto", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator(".hero-art .arch img")).toHaveAttribute("src", "img/fatia-limao-hero.jpg");
+  await expect(page.locator(".hero-art .hero-logo img")).toBeVisible();
+  await expect(page.locator(".hero-art")).not.toContainText("R$");
+  await expect(page.locator(".hero h1 em")).toHaveText("fatia por fatia.");
+  const fatias = page.locator("#destaques li");
+  await expect(fatias.first()).toBeVisible();
+  expect(await fatias.count()).toBeLessThanOrEqual(6);
+  await expect(page.locator("#destaques")).toContainText("Limão");
+  const alvo = await fatias.first().locator("a").getAttribute("href");
+  await expect(page.locator(alvo)).toContainText("Torta de Limão");
+});
+
+test("cardápio: Torta de Limão por R$ 18,00", async ({ page }) => {
+  await page.goto("/");
+  const item = page.locator("#menu .item", { hasText: "Torta de Limão" });
+  await expect(item).toContainText(/R\$\s18,00/);
+  await expect(item.locator("button.add")).toBeEnabled();
+});
+
+test("cartão: pedido cartao_link pede o link no WhatsApp e o painel envia o link", async ({ page }) => {
+  await page.goto("/");
+  await adicionar(page, 1);
+  await page.click("#open-cart");
+  await page.click("#ir-dados");
+  await page.fill("#c-nome", "Cliente Cartão");
+  await page.fill("#c-tel", "21988887777");
+  await page.locator("#opt-retirada").click();
+  await page.locator("#opt-cartao").click();
+  await page.click("#enviar");
+  await expect(page.locator("#v-fim")).toContainText("A Larissa vai te enviar o link de pagamento do Mercado Pago pelo WhatsApp");
+  const botao = page.getByRole("link", { name: "Confirmar pedido no WhatsApp" });
+  await expect(botao).toHaveAttribute("href", /^https:\/\/wa\.me\/5521975222904\?text=.*link%20de%20pagamento/);
+  await entrarPainel(page);
+  await page.click("#t-pedidos");
+  const card = page.locator(".order", { hasText: "Cliente Cartão" });
+  await expect(card).toContainText("Cartão (link Mercado Pago)");
+  const link = card.getByRole("link", { name: "Enviar link de pagamento" });
+  await expect(link).toHaveAttribute("href", /^https:\/\/wa\.me\/5521988887777\?text=.*R%24/);
+});
+
+test("painel: alerta quando o total não bate com o cardápio", async ({ page }) => {
+  await semearPedidos(page, [
+    ped({ id: "dok", numero: "OK1", itens: [{ id: "p0", nome: "Torta de Limão", preco: 18, qtd: 2 }], subtotal: 36, total: 36, pagamento: "pix" }),
+    ped({ id: "dbad", numero: "BAD1", itens: [{ id: "p0", nome: "Torta de Limão", preco: 1, qtd: 2 }], subtotal: 2, total: 2, pagamento: "pix" })
+  ]);
+  await entrarPainel(page);
+  await page.click("#t-pedidos");
+  await expect(page.locator(".order", { hasText: "#BAD1" })).toContainText("Total diferente do cardápio");
+  await expect(page.locator(".order", { hasText: "#OK1" })).not.toContainText("Total diferente do cardápio");
+});
+
+test("painel: Resumo soma pedidos não cancelados com valores conhecidos", async ({ page }) => {
+  await semearPedidos(page, [
+    ped({ id: "d1", numero: "A1", itens: [{ id: "p0", nome: "Torta de Limão", preco: 18, qtd: 2 }], subtotal: 36, total: 36, pagamento: "pix" }),
+    ped({ id: "d2", numero: "A2", tipo: "entrega", endereco: { rua: "Rua A", numero: "1", bairro: "Centro", complemento: "", referencia: "" },
+      itens: [{ id: "p11", nome: "Pizza Brownie Ferrero", preco: 15, qtd: 1 }], subtotal: 15, total: 15, pagamento: "cartao_link" }),
+    ped({ id: "d3", numero: "A3", status: "cancelado", itens: [{ id: "p0", nome: "Torta de Limão", preco: 18, qtd: 5 }], subtotal: 90, total: 90, pagamento: "pix" })
+  ]);
+  await entrarPainel(page);
+  await expect(page.locator("#p-resumo")).toBeVisible();
+  const tiles = page.locator("#r-periodos .tile");
+  for (let i = 0; i < 3; i++) {
+    await expect(tiles.nth(i)).toContainText(/R\$\s51,00/);
+    await expect(tiles.nth(i)).toContainText(/2 pedidos · ticket médio R\$\s25,50/);
+  }
+  await expect(page.locator("#r-top .bar-row").first()).toContainText(/Torta de Limão\s*2 un\. · R\$\s36,00/);
+  await expect(page.locator("#r-pag")).toContainText(/Pix\s*1 · R\$\s36,00/);
+  await expect(page.locator("#r-pag")).toContainText(/Cartão\s*1 · R\$\s15,00/);
+  await expect(page.locator("#r-tipo")).toContainText(/Entrega\s*1 · R\$\s15,00/);
+  await expect(page.locator("#r-tipo")).toContainText(/Retirada\s*1 · R\$\s36,00/);
+});
+
+test("privacidade: link no rodapé e no checkout, página carrega", async ({ page }) => {
+  await page.goto("/");
+  await expect(page.locator("footer a[href='privacidade.html']")).toBeVisible();
+  await adicionar(page, 1);
+  await page.click("#open-cart");
+  await page.click("#ir-dados");
+  await expect(page.locator("#v-dados a[href='privacidade.html']")).toBeVisible();
+  await page.goto("/privacidade.html");
+  await expect(page.locator("h1")).toHaveText("Como usamos os seus dados");
+  await expect(page.locator("main")).toContainText("exclusão");
+});
+
+test("prévia de link: og:image, og:url e JSON-LD com URL absoluta do SITE_URL", async ({ page }) => {
+  await page.goto("/");
+  const site = await page.evaluate(async () => (await import("/js/config.js")).SITE_URL);
+  expect(site).toMatch(/^https:\/\/.+\/$/);
+  await expect(page.locator('meta[property="og:url"]')).toHaveAttribute("content", site);
+  await expect(page.locator('meta[property="og:image"]')).toHaveAttribute("content", site + "img/og.jpg");
+  const ld = JSON.parse(await page.locator('script[type="application/ld+json"]').textContent());
+  expect(ld.image).toBe(site + "img/og.jpg");
+});
+
+for (const esquema of ["light", "dark"]) {
+  test(`acessibilidade (${esquema}): privacidade sem violações sérias ou críticas`, async ({ page }) => {
+    await page.emulateMedia({ colorScheme: esquema });
+    await page.goto("/privacidade.html");
+    const r = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze();
+    expect(r.violations.filter(v => ["serious", "critical"].includes(v.impact)).map(v => v.id)).toEqual([]);
+  });
+}
+
+test("sem rolagem horizontal em 390px: privacidade", async ({ page }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/privacidade.html");
+  expect(await page.evaluate(() => document.documentElement.scrollWidth - innerWidth)).toBeLessThanOrEqual(0);
+});

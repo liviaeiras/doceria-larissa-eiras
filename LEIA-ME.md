@@ -48,9 +48,15 @@ Só quem tem um documento em `admins` consegue ver pedidos e mudar o cardápio. 
 ## 4. Primeiro acesso ao painel
 
 1. Abra `admin.html` (ou clique em **Área da doceria** no rodapé do site) e entre com o e-mail e a senha da Larissa.
-2. Aba **Cardápio → Importar cardápio inicial** (traz os itens e fotos que já estão no site).
+2. Aba **Cardápio → Importar cardápio inicial** (traz os itens e fotos que já estão no site, já com a Torta de Limão e os 5 destaques). Em cada item, **Destaque** liga ou desliga a foto na faixa "Fatias da casa" do início (até 6).
 3. Aba **Configurações**: preencha a **chave Pix**, o nome do recebedor e a cidade (confira a prévia), se aceita **cartão**, a **taxa de entrega** (vazio = "a combinar") e o pedido mínimo. Clique em **Salvar configurações**.
 4. No topo, o botão **Loja ABERTA / Loja FECHADA** controla se o site aceita pedidos. Fechada, o site manda os clientes para o WhatsApp.
+
+A aba **Resumo** mostra as vendas de hoje, da semana e do mês, os mais vendidos e a divisão por pagamento e por entrega/retirada. Se um pedido mostrar **Total diferente do cardápio**, confira os preços antes de confirmar.
+
+Para instalar o painel no celular: abra `admin.html` no Chrome (Android) ou no Safari (iPhone) e use **Adicionar à tela inicial**; aparece como "Painel Doceria".
+
+CNPJ no rodapé: preencha `CNPJ` em `js/config.js` (vazio = não aparece). Confira também o prazo de guarda dos pedidos escrito em `privacidade.html` (12 meses).
 
 Dica: deixe o painel aberto no celular ou computador e toque uma vez na página para liberar o **som** de pedido novo.
 
