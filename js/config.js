@@ -6,6 +6,13 @@
 // ============================================================
 export const FIREBASE_CONFIG = null;
 
+// Endereço público do site (prévia de link no WhatsApp/Instagram). Troque quando larissaeiras.com.br estiver ativo
+// e atualize também og:url, og:image e o "image" do JSON-LD no <head> do index.html (os robôs não rodam JavaScript).
+export const SITE_URL = "https://liviaeiras.github.io/doceria-larissa-eiras/";
+
+// CNPJ da doceria para o rodapé. Vazio = não aparece.
+export const CNPJ = "";
+
 // Firebase App Check (reCAPTCHA v3): chave do site gerada no console do reCAPTCHA (veja LEIA-ME.md).
 // Vazia = App Check desligado.
 export const APP_CHECK_SITE_KEY = "";

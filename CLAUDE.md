@@ -22,6 +22,7 @@ Site comercial da doceria (Paracambi, RJ): loja própria com cardápio, sacola, 
 
 ## Status
 - Loja, painel, regras e testes prontos e rodando em modo demonstração.
+- `SITE_URL` (js/config.js) e as URLs absolutas de og:url, og:image e JSON-LD no `index.html` apontam para o GitHub Pages: trocar para https://larissaeiras.com.br/ quando o domínio estiver ativo.
 - Pendente (dona): criar o projeto Firebase e colar `FIREBASE_CONFIG`, chave Pix, taxa de entrega, GitHub Pages e domínio.
 
 ## Padrões

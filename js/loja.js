@@ -1,6 +1,7 @@
 // Loja: cardápio, sacola e checkout (Pix, link de cartão pelo WhatsApp ou combinar no WhatsApp).
 import { iniciarStore } from "./store.js";
 import { gerarPix } from "./pix.js";
+import { CNPJ } from "./config.js";
 
 const $ = id => document.getElementById(id);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -383,6 +384,7 @@ function ligarEventos() {
 
 async function iniciar() {
   $("ano").textContent = new Date().getFullYear();
+  if (CNPJ) { $("cnpj").textContent = ` · CNPJ: ${CNPJ}`; $("cnpj").hidden = false; }
   $("drawer").inert = true;
   ligarEventos();
   ligarWa();

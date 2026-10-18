@@ -8,7 +8,11 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="Larissa Eiras Doceria Artesanal">
 <meta property="og:description" content="Tortas e doces feitos à mão em Paracambi. Peça pelo site: entrega ou retirada, Pix ou cartão.">
-<meta property="og:image" content="img/og.jpg">
+<meta property="og:url" content="https://liviaeiras.github.io/doceria-larissa-eiras/">
+<meta property="og:image" content="https://liviaeiras.github.io/doceria-larissa-eiras/img/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
@@ -18,7 +22,7 @@
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@400;500&display=swap">
 <link rel="stylesheet" href="css/base.css">
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"Bakery","name":"Larissa Eiras Doceria Artesanal","image":"img/og.jpg","telephone":"+55 21 97522-2904","servesCuisine":"Doces","priceRange":"R$",
+{"@context":"https://schema.org","@type":"Bakery","name":"Larissa Eiras Doceria Artesanal","image":"https://liviaeiras.github.io/doceria-larissa-eiras/img/og.jpg","url":"https://liviaeiras.github.io/doceria-larissa-eiras/","telephone":"+55 21 97522-2904","servesCuisine":"Doces","priceRange":"R$",
 "address":{"@type":"PostalAddress","streetAddress":"Rua Afonso Franco, 250","addressLocality":"Paracambi","addressRegion":"RJ","postalCode":"26600-000","addressCountry":"BR"},
 "sameAs":["https://www.instagram.com/larieiras.doces/"]}
 </script>
@@ -137,7 +141,8 @@ section{padding-block:56px}
 @media (max-width:820px){.contact-grid{grid-template-columns:1fr 1fr}}
 @media (max-width:480px){.contact-grid{grid-template-columns:1fr}}
 footer{border-top:1px solid var(--line);padding-block:22px;font-size:.82rem;color:var(--ink-soft)}
-footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px}
+footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 18px}
+footer nav{display:flex;flex-wrap:wrap;gap:8px 18px}
 footer a{color:var(--ink-soft)}
 
 /* Barra flutuante do carrinho (celular) */
@@ -290,7 +295,8 @@ footer a{color:var(--ink-soft)}
   </section>
 </main>
 
-<footer><div class="wrap"><span>© <span id="ano">2026</span> Larissa Eiras Doceria Artesanal · Paracambi, RJ</span><a href="admin.html">Área da doceria</a></div></footer>
+<footer><div class="wrap"><span>© <span id="ano">2026</span> Larissa Eiras Doceria Artesanal · Paracambi, RJ<span id="cnpj" hidden></span></span>
+  <nav aria-label="Rodapé"><a href="privacidade.html">Privacidade</a><a href="admin.html">Área da doceria</a><span>Site: Lívia Eiras</span></nav></div></footer>
 
 <button class="cart-float" id="cart-float" type="button" hidden><span id="cf-qty">1 item</span><span>Ver sacola · <span id="cf-total">R$ 0,00</span></span></button>
 
@@ -325,6 +331,7 @@ footer a{color:var(--ink-soft)}
         <label id="opt-pix"><input type="radio" name="pag" value="pix"><span><b>Pix</b><small>QR Code com o valor exato</small></span></label>
         <label id="opt-cartao"><input type="radio" name="pag" value="cartao_link"><span><b>Cartão</b><small>Link do Mercado Pago pelo WhatsApp</small></span></label>
       </div></div>
+    <p class="muted" style="margin:0;font-size:.85rem">Usamos seus dados só para preparar e entregar o pedido. <a href="privacidade.html" target="_blank" rel="noopener">Política de privacidade</a>.</p>
     <p class="err" id="dados-err" role="alert"></p>
   </form>
   <div class="sheet-foot" data-view="dados" hidden>
