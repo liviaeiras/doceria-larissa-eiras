@@ -32,7 +32,7 @@ export function gerarPix({ chave, nome, cidade, valor, txid }) {
   const tx = (semAcento(txid || "***").replace(/[^A-Za-z0-9]/g, "") || "***").slice(0, 25);
   let s = campo("00", "01") + campo("26", conta) + campo("52", "0000") + campo("53", "986");
   if (valor > 0) s += campo("54", valor.toFixed(2));
-  s += campo("58", "BR") + campo("59", semAcento(nome).toUpperCase().slice(0, 25) || "RECEBEDOR")
+  s += campo("58", "BR") + campo("59", semAcento(nome).slice(0, 25) || "RECEBEDOR")
      + campo("60", semAcento(cidade).toUpperCase().slice(0, 15) || "CIDADE") + campo("62", campo("05", tx)) + "6304";
   return s + crc16(s);
 }
