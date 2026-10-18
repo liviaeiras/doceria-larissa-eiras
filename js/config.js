@@ -44,19 +44,21 @@ export const LOJA_PADRAO = {
 };
 
 // Cardápio inicial (importado para o banco no primeiro acesso ao painel).
-const P = (categoria, nome, preco, foto, desc = "", disponivel = true) => ({ categoria, nome, preco, foto: foto ? `img/${foto}.jpg` : "", desc, disponivel });
+// destaque: aparece na faixa "Fatias da casa" do início (até 6).
+const P = (categoria, nome, preco, foto, desc = "", disponivel = true, destaque = false) => ({ categoria, nome, preco, foto: foto ? `img/${foto}.jpg` : "", desc, disponivel, destaque });
 export const PRODUTOS_INICIAIS = [
-  P("tortas","Torta Doce de Leite com Caramelo Salgado",18,"torta-doce-de-leite"),
-  P("tortas","Torta Maracujá com Chocolate",18,"torta-maracuja"),
+  P("tortas","Torta de Limão",18,"fatia-limao","Base crocante, creme de limão e merengue maçaricado com raspas de limão.",true,true),
+  P("tortas","Torta Doce de Leite com Caramelo Salgado",18,"torta-doce-de-leite","",true,true),
+  P("tortas","Torta Maracujá com Chocolate",18,"torta-maracuja","",true,true),
   P("tortas","Torta de Ninho com Geleia de Frutas Vermelhas",18,"torta-ninho-geleia","Equilíbrio perfeito entre doce e ácido em cada fatia."),
   P("tortas","Torta de ChocoOreo",18,"torta-chocooreo","Torta de chocolate com pedaços de biscoito Oreo em uma base crocante."),
   P("tortas","Torta Triplo Chocolate",18,"torta-triplo-chocolate"),
   P("tortas","Torta Ninho com Nutella",18,"torta-ninho-nutella","",false),
   P("bolo-fatia","Bolo Fatia Ninho com Nutella",22,"bolo-ninho-nutella","Massa branca recheada com creme de Ninho, Nutella e mousse de Ninho."),
-  P("bolo-fatia","Bolo Fatia Pistache com Frutas Vermelhas",22,"bolo-pistache","Massa fofinha, brigadeiro de pistache, mousse de pistache e geleia de frutas vermelhas."),
+  P("bolo-fatia","Bolo Fatia Pistache com Frutas Vermelhas",22,"bolo-pistache","Massa fofinha, brigadeiro de pistache, mousse de pistache e geleia de frutas vermelhas.",true,true),
   P("bolo-fatia","Bolo Fatia ChocoMousse",22,"bolo-chocomousse","Massa de chocolate, recheio de brigadeiro e mousse de chocolate 50%."),
   P("pizza-brownie","Pizza Brownie Ninho com Nutella",15,"pizza-ninho-nutella","Brownie com cobertura de Ninho e Nutella."),
-  P("pizza-brownie","Pizza Brownie Ferrero",15,"pizza-ferrero","Brownie, brigadeiro 50%, amendoim e bombom Ferrero."),
+  P("pizza-brownie","Pizza Brownie Ferrero",15,"pizza-ferrero","Brownie, brigadeiro 50%, amendoim e bombom Ferrero.",true,true),
   P("pizza-brownie","Pizza Brownie KitKat",15,"pizza-kitkat","Brownie, brigadeiro 50%, granulado de chocolate e KitKat."),
   P("pizza-brownie","Pizza Brownie Ninho com Morango",15,"pizza-ninho-morango","Brownie coberto com Ninho, morangos frescos e um toque de chocolate."),
   P("torta-cookie","Torta CookieTella",19,"torta-cookietella","Massa de cookie macia por dentro e crocante por fora, recheada com Nutella."),

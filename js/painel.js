@@ -256,6 +256,7 @@ function renderCardapio() {
         <label class="sr" for="pr-${esc(p.id)}">Preço de ${esc(p.nome)}</label><span aria-hidden="true">R$</span>
         <input class="input preco" id="pr-${esc(p.id)}" type="number" min="0" step="0.5" inputmode="decimal" value="${esc(p.preco)}" data-preco>
         <label class="switch"><input type="checkbox" data-disp${p.disponivel === false ? "" : " checked"}><span class="track"></span>Disponível</label>
+        <label class="switch"><input type="checkbox" data-dest${p.destaque ? " checked" : ""}><span class="track"></span>Destaque</label>
         <button class="btn btn-sm btn-ghost" type="button" data-editar aria-label="Editar ${esc(p.nome)}">Editar</button>
         <button class="btn btn-sm btn-danger" type="button" data-excluir aria-label="Excluir ${esc(p.nome)}">Excluir</button>
       </div></div>`).join("")}</div>`;
@@ -264,6 +265,11 @@ function renderCardapio() {
 $("cardapio").addEventListener("change", e => {
   const row = e.target.closest(".prod"); if (!row) return;
   const id = row.dataset.id;
+  if (e.target.matches("[data-dest]")) {
+    const n = produtos.filter(x => x.destaque && x.id !== id).length;
+    if (e.target.checked && n >= 6) toast("O início mostra só 6 destaques disponíveis");
+    tentar(() => store.salvarProduto({ id, destaque: e.target.checked }), e.target.checked ? "Em destaque no início" : "Fora dos destaques");
+  }
   if (e.target.matches("[data-disp]")) tentar(() => store.salvarProduto({ id, disponivel: e.target.checked }), e.target.checked ? "Disponível" : "Marcado como esgotado");
   if (e.target.matches("[data-preco]")) {
     const v = Number(e.target.value);
@@ -288,6 +294,7 @@ function editar(p) {
   $("mp-preco").value = p?.preco ?? ""; $("mp-ordem").value = p?.ordem ?? produtos.reduce((m, x) => Math.max(m, x.ordem || 0), 0) + 1;
   $("mp-cat").value = p?.categoria || categorias()[0]?.id || "";
   $("mp-disp").checked = p ? p.disponivel !== false : true;
+  $("mp-dest").checked = !!p?.destaque;
   $("mp-foto").value = ""; $("mp-err").textContent = "";
   mostrarFoto(p?.foto || "");
   abrirModal("m-prod");
@@ -328,7 +335,7 @@ $("m-prod").addEventListener("submit", async e => {
   if ($("mp-preco").value === "" || !(preco >= 0)) { $("mp-err").textContent = "Informe um preço válido."; return $("mp-preco").focus(); }
   const dados = {
     nome, desc: $("mp-desc").value.trim(), preco: Math.round(preco * 100) / 100,
-    categoria: $("mp-cat").value, ordem: Number($("mp-ordem").value) || 0, disponivel: $("mp-disp").checked,
+    categoria: $("mp-cat").value, ordem: Number($("mp-ordem").value) || 0, disponivel: $("mp-disp").checked, destaque: $("mp-dest").checked,
     foto: fotoNova !== undefined ? fotoNova : (editando?.foto || "")
   };
   if (editando) dados.id = editando.id;
