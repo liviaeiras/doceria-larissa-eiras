@@ -73,6 +73,7 @@ function acaoHtml(p) {
 }
 function renderMenu() {
   if (!cfg) return;
+  renderDestaques();
   const cats = [...(cfg.categorias || [])];
   produtos.forEach(p => { if (!cats.some(c => c.id === p.categoria)) cats.push({ id: p.categoria || "outros", nome: p.categoria || "Outros" }); });
   const grupos = cats.map(c => ({ c, itens: produtos.filter(p => (p.categoria || "outros") === c.id) })).filter(g => g.itens.length);
@@ -88,13 +89,20 @@ function renderMenu() {
     <div class="cat-head"><h3>${esc(c.nome)}</h3></div>${c.nota ? `<p class="cat-note">${esc(c.nota)}</p>` : ""}
     <div class="items">${itens.map(p => {
       const off = p.disponivel === false;
-      return `<article class="item${off ? " off" : ""}">
+      return `<article class="item${off ? " off" : ""}" id="prod-${esc(p.id)}">
         <div class="ph${fotoOk(p.foto) ? "" : " mono"}">${fotoOk(p.foto) ? `<img src="${esc(p.foto)}" alt="" width="104" height="104" loading="lazy">` : esc((p.nome || "L").trim()[0])}</div>
         <h4>${esc(p.nome)}</h4>${p.desc ? `<p>${esc(p.desc)}</p>` : ""}${off ? `<span class="tag-off">Indisponível hoje</span>` : ""}
         <div class="row"><span class="price">${brl(p.preco)}</span><span data-acao="${esc(p.id)}">${acaoHtml(p)}</span></div>
       </article>`;
     }).join("")}</div></div>`).join("");
   observarCats();
+}
+const nomeCurto = n => String(n).replace(/^(Torta de |Torta |Bolo Fatia |Pizza Brownie |Sorvete )/, "");
+function renderDestaques() {
+  const lista = produtos.filter(p => p.destaque && p.disponivel !== false).slice(0, 6);
+  $("destaques-wrap").hidden = !lista.length;
+  $("destaques").innerHTML = lista.map(p => `<li><a href="#prod-${esc(p.id)}" aria-label="${esc(p.nome)}: ver no cardápio">
+    ${fotoOk(p.foto) ? `<img src="${esc(p.foto)}" alt="" width="104" height="104" loading="lazy">` : ""}<span>${esc(nomeCurto(p.nome))}</span></a></li>`).join("");
 }
 let obs;
 function observarCats() {

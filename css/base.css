@@ -5,7 +5,7 @@
   --brand:#C97F86;   /* só fundos, detalhes, bordas e ícones: nunca texto sobre fundo claro */
   --rose:#985061;    /* botões, links, preços e destaques */
   --rose-ink:#FFF6F3;
-  --ok:#2f7d52; --warn:#b5651d; --bad:#b0413e; --wa:#1a7f45; --scrim:rgba(58,30,42,.45);
+  --ok:#2f7d52; --warn:#b5651d; --bad:#b0413e; --wa:#1a7f45; --paper:#FFFFFF; --scrim:rgba(58,30,42,.45);
   --shadow:0 1px 2px rgba(116,72,94,.06),0 8px 24px rgba(116,72,94,.10);
   --shadow-lg:0 10px 28px rgba(116,72,94,.28);
   --f-display:"Cormorant Garamond",Georgia,serif;
@@ -14,11 +14,11 @@
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
   --bg:#22161A;--surface:#2C1D22;--blush:#3A262C;--blush-deep:#4A3038;--ink:#FFF6F3;--ink-soft:#E3C9CE;--line:#46303A;
-  --brand:#C97F86;--rose:#E2A3AA;--rose-ink:#2A1418;--ok:#6cc596;--warn:#e9a35c;--bad:#ec8a86;--scrim:rgba(0,0,0,.6);
+  --brand:#C97F86;--paper:#FFFFFF;--rose:#E2A3AA;--rose-ink:#2A1418;--ok:#6cc596;--warn:#e9a35c;--bad:#ec8a86;--scrim:rgba(0,0,0,.6);
   --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);--shadow-lg:0 10px 28px rgba(0,0,0,.45);color-scheme:dark}}
 :root[data-theme="dark"]{
   --bg:#22161A;--surface:#2C1D22;--blush:#3A262C;--blush-deep:#4A3038;--ink:#FFF6F3;--ink-soft:#E3C9CE;--line:#46303A;
-  --brand:#C97F86;--rose:#E2A3AA;--rose-ink:#2A1418;--ok:#6cc596;--warn:#e9a35c;--bad:#ec8a86;--scrim:rgba(0,0,0,.6);
+  --brand:#C97F86;--paper:#FFFFFF;--rose:#E2A3AA;--rose-ink:#2A1418;--ok:#6cc596;--warn:#e9a35c;--bad:#ec8a86;--scrim:rgba(0,0,0,.6);
   --shadow:0 1px 2px rgba(0,0,0,.3),0 8px 24px rgba(0,0,0,.35);--shadow-lg:0 10px 28px rgba(0,0,0,.45);color-scheme:dark}
 
 *{box-sizing:border-box}
