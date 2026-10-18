@@ -1,0 +1,71 @@
+rules_version = '2';
+// Regras do Firestore da loja. Publicar em: Firebase Console → Firestore → Regras (ou `firebase deploy --only firestore:rules`).
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+    function txt(v, max) { return v is string && v.size() <= max; }
+    function cheio(v, max) { return txt(v, max) && v.size() > 0; }
+    function num(v) { return v is number && v >= 0; }
+
+    function enderecoValido(e) {
+      return e is map
+        && e.keys().hasOnly(['rua', 'numero', 'bairro', 'complemento', 'referencia'])
+        && e.keys().hasAll(['rua', 'numero', 'bairro'])
+        && cheio(e.rua, 120) && cheio(e.numero, 20) && cheio(e.bairro, 80)
+        && txt(e.get('complemento', ''), 80) && txt(e.get('referencia', ''), 120);
+    }
+
+    function pedidoValido(d) {
+      return d.keys().hasOnly(['cliente', 'tipo', 'endereco', 'itens', 'subtotal', 'taxa', 'total', 'pagamento', 'obs', 'numero', 'status', 'pago', 'criadoEm'])
+        && d.keys().hasAll(['cliente', 'tipo', 'endereco', 'itens', 'subtotal', 'taxa', 'total', 'pagamento', 'obs', 'numero', 'status', 'pago', 'criadoEm'])
+        && d.cliente is map
+        && d.cliente.keys().hasOnly(['nome', 'telefone']) && d.cliente.keys().hasAll(['nome', 'telefone'])
+        && cheio(d.cliente.nome, 80) && d.cliente.telefone is string && d.cliente.telefone.matches('[0-9]{10,11}')
+        && ((d.tipo == 'retirada' && d.endereco == null) || (d.tipo == 'entrega' && enderecoValido(d.endereco)))
+        && d.itens is list && d.itens.size() >= 1 && d.itens.size() <= 50
+        && num(d.subtotal) && num(d.total) && (d.taxa == null || num(d.taxa))
+        && d.pagamento in ['pix', 'cartao', 'whatsapp']
+        && txt(d.obs, 500)
+        && cheio(d.numero, 12)
+        && d.status == 'novo'
+        && d.pago == false
+        && d.criadoEm == request.time;
+    }
+
+    // Retorno do checkout do cartão: o visitante só pode gravar uma vez, e só esse campo.
+    function retornoValido() {
+      let r = request.resource.data.retornoPagamento;
+      return !('retornoPagamento' in resource.data)
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['retornoPagamento'])
+        && r is map
+        && r.keys().hasOnly(['receipt_url', 'order_nsu', 'slug', 'capture_method', 'transaction_nsu', 'em'])
+        && txt(r.get('receipt_url', ''), 300) && txt(r.get('order_nsu', ''), 300) && txt(r.get('slug', ''), 300)
+        && txt(r.get('capture_method', ''), 300) && txt(r.get('transaction_nsu', ''), 300)
+        && r.get('em', 0) is number;
+    }
+
+    match /loja/config {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /produtos/{id} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+
+    match /pedidos/{id} {
+      allow create: if pedidoValido(request.resource.data);
+      allow read, delete: if isAdmin();
+      allow update: if isAdmin() || retornoValido();
+    }
+
+    match /admins/{uid} {
+      allow read: if request.auth != null && request.auth.uid == uid;
+      allow write: if false;
+    }
+  }
+}
