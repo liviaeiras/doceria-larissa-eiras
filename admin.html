@@ -9,6 +9,7 @@
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="theme-color" content="#C97F86">
+<link rel="manifest" href="manifest.webmanifest">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Jost:wght@400;500&display=swap">
@@ -70,6 +71,18 @@ main{padding-block:18px 48px}
 .empty{text-align:center;color:var(--ink-soft);padding:32px 10px}
 @media (max-width:480px){.hide-sm{display:none}}
 .alerta{background:color-mix(in srgb,var(--bad) 14%,var(--surface));border:1px solid var(--bad);border-radius:12px;padding:8px 10px;color:var(--ink)}
+.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+@media (max-width:700px){.tiles{grid-template-columns:1fr}}
+.tile{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:14px 16px;min-width:0}
+.tile h2{font-family:var(--f-body);font-size:.78rem;font-weight:500;letter-spacing:.12em;text-transform:uppercase;color:var(--rose)}
+.tile .v{font-family:var(--f-display);font-size:2rem;font-weight:600;line-height:1.1;margin:4px 0;font-variant-numeric:tabular-nums}
+.tile p{margin:0;font-size:.85rem;color:var(--ink-soft);font-variant-numeric:tabular-nums}
+.bars{display:flex;flex-direction:column;gap:12px}
+.bar-row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;font-size:.9rem}
+.bar-row .n{min-width:0;overflow-wrap:anywhere}
+.bar-row .q{color:var(--ink-soft);font-variant-numeric:tabular-nums;text-align:right}
+.bar-track{grid-column:1/-1;height:10px;background:var(--blush);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;background:var(--brand);border-radius:0 4px 4px 0;min-width:2px}
 .btn-danger{border-color:var(--bad);color:var(--bad)}
 </style>
 </head>
@@ -114,14 +127,26 @@ main{padding-block:18px 48px}
         <button class="btn btn-sm" type="button" id="fechar-nao">Cancelar</button></div>
     </div>
     <div class="wrap"><div class="tabs" role="tablist" aria-label="Seções do painel">
-      <button role="tab" id="t-pedidos" aria-controls="p-pedidos" aria-selected="true" type="button">Pedidos<span class="n" id="n-novos" hidden></span></button>
+      <button role="tab" id="t-resumo" aria-controls="p-resumo" aria-selected="true" type="button">Resumo</button>
+      <button role="tab" id="t-pedidos" aria-controls="p-pedidos" aria-selected="false" tabindex="-1" type="button">Pedidos<span class="n" id="n-novos" hidden></span></button>
       <button role="tab" id="t-cardapio" aria-controls="p-cardapio" aria-selected="false" tabindex="-1" type="button">Cardápio</button>
       <button role="tab" id="t-config" aria-controls="p-config" aria-selected="false" tabindex="-1" type="button">Configurações</button>
     </div></div>
   </header>
 
   <main class="wrap" id="conteudo" tabindex="-1">
-    <section class="panel" id="p-pedidos" role="tabpanel" aria-labelledby="t-pedidos">
+    <section class="panel" id="p-resumo" role="tabpanel" aria-labelledby="t-resumo">
+      <div class="tiles" id="r-periodos"></div>
+      <div class="field" style="max-width:220px"><label for="r-mes">Mês</label><input class="input" id="r-mes" type="month"></div>
+      <div class="card"><h2 id="r-top-t">Mais vendidos do mês</h2><div id="r-top" class="bars"></div></div>
+      <div class="row2">
+        <div class="card"><h2>Por pagamento</h2><div id="r-pag" class="bars"></div></div>
+        <div class="card"><h2>Entrega ou retirada</h2><div id="r-tipo" class="bars"></div></div>
+      </div>
+      <p class="muted" style="margin:0;font-size:.85rem">Conta só pedidos não cancelados, pelo total informado em cada pedido.</p>
+    </section>
+
+    <section class="panel" id="p-pedidos" role="tabpanel" aria-labelledby="t-pedidos" hidden>
       <div class="chips" id="filtros">
         <button type="button" data-f="ativos" aria-pressed="true">Ativos</button>
         <button type="button" data-f="concluidos" aria-pressed="false">Concluídos</button>

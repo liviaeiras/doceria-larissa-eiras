@@ -2,7 +2,7 @@
 const http = require("http"), fs = require("fs"), path = require("path");
 const raiz = path.resolve(__dirname, ".."), porta = Number(process.env.PORT || 5173);
 const tipos = { ".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=utf-8", ".css": "text/css; charset=utf-8",
-  ".json": "application/json", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png", ".svg": "image/svg+xml", ".ico": "image/x-icon", ".webp": "image/webp" };
+  ".json": "application/json", ".jpg": "image/jpeg", ".jpeg": "image/jpeg", ".png": "image/png", ".svg": "image/svg+xml", ".ico": "image/x-icon", ".webp": "image/webp", ".webmanifest": "application/manifest+json" };
 
 http.createServer((req, res) => {
   let arq = path.join(raiz, decodeURIComponent(new URL(req.url, "http://x").pathname));

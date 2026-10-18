@@ -41,6 +41,7 @@ test("fluxo completo: sacola → retirada + Pix → pedido no painel → em prep
   await expect(page.locator("#cart-count")).toHaveText("0");
 
   await entrarPainel(page);
+  await page.click("#t-pedidos");
   const card = page.locator(".order", { hasText: "#" + numero });
   await expect(card).toBeVisible();
   await expect(card).toContainText("Cliente Teste");
@@ -127,6 +128,8 @@ for (const esquema of ["light", "dark"]) {
     await expect(page.locator("#v-login")).toBeVisible();
     await checar("login");
     await entrarPainel(page);
+    await checar("resumo");
+    await page.click("#t-pedidos");
     await checar("pedidos");
     await page.click("#t-cardapio");
     await checar("cardápio");
@@ -142,7 +145,7 @@ test("sem rolagem horizontal em 390px (loja e painel)", async ({ page }) => {
   await expect(page.locator("#menu .item").first()).toBeVisible();
   expect(await largura(), "loja").toBeLessThanOrEqual(0);
   await entrarPainel(page);
-  for (const aba of ["#t-pedidos", "#t-cardapio", "#t-config"]) {
+  for (const aba of ["#t-resumo", "#t-pedidos", "#t-cardapio", "#t-config"]) {
     await page.click(aba);
     expect(await largura(), "painel " + aba).toBeLessThanOrEqual(0);
   }

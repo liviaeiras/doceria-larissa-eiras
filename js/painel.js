@@ -32,7 +32,7 @@ function aoEntrar(u, admin) {
   desligar = [
     store.onConfig(c => { cfg = c; renderLoja(); renderCardapio(); renderCats(); preencherConfig(); renderPedidos(); }),
     store.onProdutos(l => { produtos = l; renderCardapio(); if (cfg) { renderCats(); renderPedidos(); } }),
-    store.onPedidos(l => { novosPedidos(l); pedidos = l; renderPedidos(); })
+    store.onPedidos(l => { novosPedidos(l); pedidos = l; renderPedidos(); renderResumo(); })
   ];
 }
 $("login-form").addEventListener("submit", async e => {
@@ -70,7 +70,7 @@ $("fechar-sim").onclick = async () => {
 };
 
 /* ---------------- Abas ---------------- */
-const abas = ["pedidos", "cardapio", "config"];
+const abas = ["resumo", "pedidos", "cardapio", "config"];
 function abrirAba(n, foco) {
   abas.forEach(a => {
     const t = $("t-" + a), on = a === n;
@@ -200,6 +200,48 @@ $("pedidos").addEventListener("change", e => {
   const id = e.target.closest(".order").dataset.id;
   tentar(() => store.atualizarPedido(id, { pago: e.target.checked }), e.target.checked ? "Marcado como pago" : "Marcado como não pago");
 });
+/* ---------------- Resumo ---------------- */
+const mesAtual = () => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`; };
+$("r-mes").value = mesAtual();
+$("r-mes").addEventListener("change", () => renderResumo());
+const validos = () => pedidos.filter(p => p.status !== "cancelado");
+const somar = lista => lista.reduce((s, p) => s + Number(p.total || 0), 0);
+function tile(titulo, lista) {
+  const total = somar(lista), n = lista.length;
+  return `<div class="tile"><h2>${esc(titulo)}</h2><p class="v">${brl(total)}</p>
+    <p>${n} ${n === 1 ? "pedido" : "pedidos"} · ticket médio ${brl(n ? total / n : 0)}</p></div>`;
+}
+function barras(linhas, vazio) {
+  if (!linhas.length) return `<p class="muted" style="margin:0">${esc(vazio)}</p>`;
+  const max = Math.max(...linhas.map(l => l.medida)) || 1;
+  return linhas.map(l => `<div class="bar-row"><span class="n">${esc(l.nome)}</span><span class="q">${esc(l.texto)}</span>
+    <div class="bar-track" aria-hidden="true"><div class="bar-fill" style="width:${Math.round((l.medida / max) * 100)}%"></div></div></div>`).join("");
+}
+function renderResumo() {
+  const agora = new Date(), hoje = new Date(agora.getFullYear(), agora.getMonth(), agora.getDate()).getTime();
+  const semana = hoje - ((agora.getDay() + 6) % 7) * 864e5; // segunda-feira
+  const [a, m] = ($("r-mes").value || mesAtual()).split("-").map(Number);
+  const ini = new Date(a, m - 1, 1).getTime(), fim = new Date(a, m, 1).getTime();
+  const nomeMes = new Date(a, m - 1, 1).toLocaleDateString("pt-BR", { month: "long", year: "numeric" });
+  const todos = validos(), doMes = todos.filter(p => p.criadoEm >= ini && p.criadoEm < fim);
+  $("r-periodos").innerHTML = tile("Hoje", todos.filter(p => p.criadoEm >= hoje)) + tile("Esta semana", todos.filter(p => p.criadoEm >= semana))
+    + tile(`Mês: ${nomeMes}`, doMes);
+  $("r-top-t").textContent = `Mais vendidos: ${nomeMes}`;
+  const porItem = {};
+  doMes.forEach(p => (p.itens || []).forEach(i => {
+    const k = i.id || i.nome, x = porItem[k] || (porItem[k] = { nome: i.nome, qtd: 0, valor: 0 });
+    x.qtd += Number(i.qtd || 0); x.valor += Number(i.qtd || 0) * Number(i.preco || 0);
+  }));
+  const top = Object.values(porItem).sort((x, y) => y.qtd - x.qtd || y.valor - x.valor).slice(0, 5);
+  $("r-top").innerHTML = barras(top.map(x => ({ nome: x.nome, medida: x.qtd, texto: `${x.qtd} un. · ${brl(x.valor)}` })), "Nenhuma venda neste mês.");
+  const grupo = (chave, nomes) => Object.entries(nomes).map(([k, nome]) => {
+    const l = doMes.filter(p => p[chave] === k);
+    return { nome, medida: somar(l), texto: `${l.length} · ${brl(somar(l))}`, n: l.length };
+  }).filter(x => x.n);
+  $("r-pag").innerHTML = barras(grupo("pagamento", { pix: "Pix", cartao_link: "Cartão", whatsapp: "Combinar no WhatsApp" }), "Nenhuma venda neste mês.");
+  $("r-tipo").innerHTML = barras(grupo("tipo", { entrega: "Entrega", retirada: "Retirada" }), "Nenhuma venda neste mês.");
+}
+
 /* ---------------- Modais ---------------- */
 let modalAberto = null, modalAbridor = null;
 function abrirModal(id) {
