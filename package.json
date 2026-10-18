@@ -3,7 +3,7 @@
   "private": true,
   "description": "Site da Larissa Eiras Doceria Artesanal (HTML/CSS/JS estático)",
   "scripts": {
-    "dev": "python3 -m http.server 5173",
+    "dev": "python -m http.server 5173",
     "test": "playwright test"
   },
   "devDependencies": {
