@@ -22,7 +22,7 @@ async function tentar(fn, ok) {
 }
 
 /* ---------------- Login ---------------- */
-function tela(v) { ["login", "noadmin", "app"].forEach(x => { $("v-" + x).hidden = x !== v; }); }
+function tela(v) { ["login", "noadmin", "app"].forEach(x => { $("v-" + x).hidden = x !== v; }); document.querySelector(".skip").hidden = v !== "app"; }
 function aoEntrar(u, admin) {
   desligar.forEach(f => f && f()); desligar = [];
   if (!u) { tela("login"); return; }

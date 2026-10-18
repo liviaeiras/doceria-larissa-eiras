@@ -71,6 +71,7 @@ main{padding-block:18px 48px}
 </style>
 </head>
 <body>
+<a class="skip" href="#conteudo" hidden>Pular para o conteúdo</a>
 
 <div class="demo-bar" id="demo-bar" hidden><div class="wrap"><span class="badge-demo">Modo demonstração</span> Os dados ficam só neste navegador.</div></div>
 
@@ -79,7 +80,7 @@ main{padding-block:18px 48px}
   <img src="img/logo.png" alt="" width="72" height="72">
   <h1>Área da doceria</h1>
   <form id="login-form" class="panel" novalidate>
-    <div class="field"><label for="l-email">E-mail</label><input class="input" id="l-email" type="email" autocomplete="username" required></div>
+    <div class="field"><label for="l-email">E-mail</label><input class="input" id="l-email" type="email" autocomplete="username" spellcheck="false" required></div>
     <div class="field"><label for="l-senha">Senha</label><input class="input" id="l-senha" type="password" autocomplete="current-password" required></div>
     <p class="err" id="login-err" role="alert"></p>
     <p class="muted" id="login-demo" hidden style="margin:0">Modo demonstração: use qualquer e-mail e a senha <b>demo</b>.</p>
@@ -116,7 +117,7 @@ main{padding-block:18px 48px}
     </div></div>
   </header>
 
-  <main class="wrap">
+  <main class="wrap" id="conteudo" tabindex="-1">
     <section class="panel" id="p-pedidos" role="tabpanel" aria-labelledby="t-pedidos">
       <div class="chips" id="filtros">
         <button type="button" data-f="ativos" aria-pressed="true">Ativos</button>
