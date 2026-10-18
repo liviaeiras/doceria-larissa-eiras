@@ -1,0 +1,13 @@
+{
+  "name": "doceria-larissa-eiras",
+  "private": true,
+  "description": "Site da Larissa Eiras Doceria Artesanal (HTML/CSS/JS estático)",
+  "scripts": {
+    "dev": "python3 -m http.server 5173",
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.10.2",
+    "@playwright/test": "1.56.0"
+  }
+}
