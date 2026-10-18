@@ -28,6 +28,7 @@ a{color:inherit}
 [hidden]{display:none!important}
 :focus-visible{outline:2px solid var(--rose);outline-offset:3px;border-radius:8px}
 @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto!important}*{transition:none!important;animation:none!important}}
+b,strong{font-weight:600}
 h1,h2,h3{font-family:var(--f-display);font-weight:500;text-wrap:balance;margin:0;letter-spacing:-.01em}
 .wrap{max-width:1120px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
 .eyebrow{font-size:.78rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--rose);margin:0}
@@ -87,10 +88,10 @@ textarea.input{resize:vertical;min-height:72px}
 
 .toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:var(--ink);color:var(--bg);padding:.7em 1.2em;border-radius:999px;font-weight:600;font-size:.9rem;z-index:90;opacity:0;transition:opacity .2s,transform .2s;pointer-events:none;max-width:calc(100% - 32px);text-align:center}
 .toast.on{opacity:1;transform:translate(-50%,0)}
-.badge-demo{display:inline-block;font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:var(--bg);color:var(--ink);padding:.2em .6em;border-radius:999px}
+.badge-demo{display:inline-block;font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;background:var(--bg);color:var(--ink);padding:.2em .6em;border-radius:999px}
 .demo-bar{background:var(--ink);color:var(--bg);font-size:.85rem}
 .demo-bar .wrap{padding-block:8px;display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center}
-.demo-bar a{font-weight:700}
-.skip{position:absolute;left:12px;top:-60px;z-index:100;background:var(--rose);color:var(--rose-ink);padding:.6em 1em;border-radius:999px;font-weight:700;text-decoration:none}
+.demo-bar a{font-weight:600}
+.skip{position:absolute;left:12px;top:-60px;z-index:100;background:var(--rose);color:var(--rose-ink);padding:.6em 1em;border-radius:999px;font-weight:600;text-decoration:none}
 .skip:focus{top:calc(8px + env(safe-area-inset-top,0px))}
 button,a,label{touch-action:manipulation}
